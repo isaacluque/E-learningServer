@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 
 const routerAuth = require('../routes/security/auth.routes');
+const routerUser = require('../routes/security/user.routes');
 
 class Server {
     constructor() {
@@ -12,7 +13,8 @@ class Server {
         //Routes
         this.apiRoutes = {
             //Security
-            auth:       '/auth'
+            auth:       '/auth',
+            user:       '/user',
         }
 
         //Middlewares
@@ -32,7 +34,8 @@ class Server {
     }
 
     routes() {
-        this.app.use(this.apiRoutes.auth, routerAuth)
+        this.app.use(this.apiRoutes.auth, routerAuth);
+        this.app.use(this.apiRoutes.user, routerUser);
     }
 
     listen() {

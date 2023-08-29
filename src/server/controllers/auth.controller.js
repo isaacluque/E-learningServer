@@ -4,10 +4,10 @@ const Users = require("../models/security/users.model");
 
 
 const login = async(req = request , res = response) => {
-    //Extraer los parámetros del body
+    //Extract body parameters
     const {email, password} = req.body;
     try {
-        //Buscar al usuario por su email
+        //Search for the user by their email
     const user = await Users.findOne({where: {CORREO_ELECTRONICO: email}});
     const intentos = parseInt(user.INTENTOS, 10);
         if(!user){
@@ -52,22 +52,6 @@ const login = async(req = request , res = response) => {
     
 };
 
-const register = async(res = response, req = request) => {
-    
-    try {
-        return res.json({
-            msg: 'Hello'
-        });
-        
-    } catch (error) {
-        console.log(error);
-        return res.json({
-            msg: 'Error'
-        });
-    };
-};
-
 module.exports = {
-    login,
-    register
+    login
 }

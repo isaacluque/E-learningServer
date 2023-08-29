@@ -1,4 +1,4 @@
-const {DataTypes} = require('sequelize');
+const { DataTypes } = require('sequelize');
 const { connec } = require('../../database/database');
 
 const Users = connec.define('tbl_ms_usuario',{
