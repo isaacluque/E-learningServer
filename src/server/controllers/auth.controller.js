@@ -22,6 +22,13 @@ const login = async (req = request, res = response) => {
             })
         }
 
+        if(user.ESTADO_USUARIO === 'BLOCKED'){
+            return res.status(401).json({
+                ok: false,
+                msg: `The user is blocked, talk to the administrator or change the password.`
+            })
+        }
+
         const validate_password = bcrypt.compareSync(password, user.CONTRASENA)
         if (!validate_password) {
             user.INTENTOS++
@@ -45,12 +52,7 @@ const login = async (req = request, res = response) => {
             });
         }
 
-        if(user.ESTADO_USUARIO === 'BLOCKED'){
-            return res.status(401).json({
-                ok: false,
-                msg: `The user is blocked, talk to the administrator or change the password.`
-            })
-        }
+        
 
         //Get the duration of the session token
         const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURANCION_TOKEN_SESION'}});
