@@ -13,18 +13,17 @@ const validatePasswordLength = async(req = request, res = response, next) => {
         password = ""
     }
 
-    // Validar que la contraseña no sea
     if ( max.VALOR < password.length ) {
         return res.status(400).json({
             ok: false,
-            msg: `Número de carácteres máximos en la contraseña: ${maximo.VALOR}`
+            msg: `Número de carácteres máximos en la contraseña: ${max.VALOR}`
         })
     }
 
     if ( min.VALOR > password.length ) {
         return res.status(400).json({
             ok: false,
-            msg: `Número de carácteres mínimo en la contraseña: ${minimo.VALOR}`
+            msg: `Número de carácteres mínimo en la contraseña: ${min.VALOR}`
         })
     }
 

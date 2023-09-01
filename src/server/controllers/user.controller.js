@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const Roles = require("../models/security/role.model");
 const Users = require("../models/security/users.model");
 const PasswordHistory = require("../models/security/password-history.model");
+
 const { createTransporter } = require("../helpers/nodemailer.helper");
 const Parameter = require("../models/security/parameter.model");
 
@@ -82,7 +83,7 @@ const register = async (req = request, res = response) => {
             to: `${DBUser.CORREO_ELECTRONICO}`, // list of receivers
             subject: "User created successfully! ✔", // Subject line
             text: "Hello world?", // plain text body
-            html: "<b>Hello world?</b>", // html body
+            html: `<b>Your user ${DBUser.USUARIO} has been created successfully!</b>`//, // html body
         });
 
         return res.status(201).json({

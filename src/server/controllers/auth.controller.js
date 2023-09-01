@@ -64,15 +64,18 @@ const login = async (req = request, res = response) => {
         user.FECHA_ULTIMA_CONEXION = new Date();  // Log last connection
         await user.save();
 
+        
+
         return res.status(200).json({
+            User: user,
             ok: true,
-            id_user : user.ID_USUARIO,
-            id_role: user.ID_ROL,
-            role: roleName.ROL,
-            state: user.ESTADO_USUARIO,
-            username: user.NOMBRE_USUARIO,
-            user: user.USUARIO,
-            email: user.CORREO_ELECTRONICO,
+            // id_user : user.ID_USUARIO,
+            // id_role: user.ID_ROL,
+            // role: roleName.ROL,
+            // state: user.ESTADO_USUARIO,
+            // username: user.NOMBRE_USUARIO,
+            // user: user.USUARIO,
+            // email: user.CORREO_ELECTRONICO,
             token
         });
 
@@ -85,6 +88,44 @@ const login = async (req = request, res = response) => {
     }
 };
 
+const revalidateToken = async(req = request, res = response) => {
+
+    // Get the uid of the token validator middleware
+    const { uid } = req;
+
+    // Buscar usuario
+    const user = await Users.findByPk( uid );
+
+    // If the user is blocked, their tokens are invalid.
+    if( !(user.ESTADO_USUARIO === 'ACTIVE') ) {
+        return res.status(401).json({
+            ok: false,
+            msg: 'The user does not have access, talk to the administrator'
+        });
+    };
+
+    // Generate the JWT
+    //Get the duration of the session token
+    const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURANCION_TOKEN_SESION'}});
+    //Generate JWT
+    const token = await generateJWT(uid, durationTokenSession.VALOR, process.env.SEEDJWT);
+
+    const roleName = await Roles.findByPk(user.ID_ROL);
+
+    return res.status(200).json({
+        ok: true,
+        id_user : user.ID_USUARIO,
+        id_role: user.ID_ROL,
+        role: roleName.ROL,
+        state: user.ESTADO_USUARIO,
+        username: user.NOMBRE_USUARIO,
+        user: user.USUARIO,
+        email: user.CORREO_ELECTRONICO,
+        token
+    });
+};
+
 module.exports = {
-    login
+    login,
+    revalidateToken
 }

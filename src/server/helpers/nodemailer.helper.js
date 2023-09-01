@@ -31,6 +31,7 @@ const nameCompany = await Parameter.findOne({where:{PARAMETRO: 'NOMBRE_EMPRESA'}
         html: `<b>${user} your account has been blocked for exceeding the number of attempts allowed. Please change your password.</b>`, // html body
     });
 }
+
 const createTransporterYahoo = async(email, user) => {
     //Parameters
 const smtpPort = await Parameter.findOne({where:{PARAMETRO: 'SMTP_PORT'}});
@@ -59,9 +60,27 @@ const nameCompany = await Parameter.findOne({where:{PARAMETRO: 'NOMBRE_EMPRESA'}
     });
 }
 
+const createTransporter = async() => {
+    
+  //Parameters
+const smtpPort = await Parameter.findOne({where:{PARAMETRO: 'SMTP_PORT'}});
+const smtpUser = await Parameter.findOne({where:{PARAMETRO: 'SMTP_USER'}});
+const smtpPassword = await Parameter.findOne({where:{PARAMETRO: 'SMTP_PASSWORD'}});
+
+  return nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: smtpPort.VALOR,
+      secure: true,
+      auth: {
+        user: smtpUser.VALOR,
+        pass: smtpPassword.VALOR
+      }
+    });
+}
 
 module.exports = {
     createTransporterGmail,
-    createTransporterYahoo
+    createTransporterYahoo,
+    createTransporter,
 };
     
