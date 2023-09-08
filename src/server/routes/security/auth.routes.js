@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { login, revalidateToken } = require('../../controllers/auth.controller');
+const { login, revalidateToken } = require('../../controllers/security/auth.controller');
 const { check } = require('express-validator');
 const { validateFields } = require('../../middlewares/validate-Fields');
 const { validateSpacesLogin } = require('../../middlewares/validate-spaces');

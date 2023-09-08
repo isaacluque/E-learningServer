@@ -11,6 +11,12 @@ const PasswordHistory = connec.define(`tbl_ms_hist_contrasena`, {
     ID_USUARIO: {
         type: DataTypes.INTEGER,
     },
+    ID_INSTRUCTOR: {
+        type: DataTypes.INTEGER,
+    },
+    ID_ESTUDIANTE: {
+        type: DataTypes.INTEGER,
+    },
     CONTRASENA: {
         type: DataTypes.STRING,
     }

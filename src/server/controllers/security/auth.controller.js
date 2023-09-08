@@ -1,11 +1,11 @@
 const { response, request } = require("express");
 const bcrypt = require('bcryptjs');
 
-const Users = require("../models/security/users.model");
-const Parameter = require("../models/security/parameter.model");
-const Roles = require("../models/security/role.model");
-const generateJWT = require("../helpers/generate-JWT.helper");
-const generateEmails = require("../helpers/generate-Emails.helper");
+const Users = require("../../models/security/users.model");
+const Parameter = require("../../models/security/parameter.model");
+const Roles = require("../../models/security/role.model");
+const generateJWT = require("../../helpers/generate-JWT.helper");
+const generateEmails = require("../../helpers/generate-Emails.helper");
 
 const login = async (req = request, res = response) => {
     //Extract body parameters

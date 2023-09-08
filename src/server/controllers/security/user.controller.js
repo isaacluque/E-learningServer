@@ -1,16 +1,16 @@
 const { request, response } = require("express");
 
 const bcrypt = require('bcryptjs');
-const Roles = require("../models/security/role.model");
-const Users = require("../models/security/users.model");
-const PasswordHistory = require("../models/security/password-history.model");
+const Roles = require("../../models/security/role.model");
+const Users = require("../../models/security/users.model");
+const PasswordHistory = require("../../models/security/password-history.model");
 
-const { createTransporter } = require("../helpers/nodemailer.helper");
-const Parameter = require("../models/security/parameter.model");
+const { createTransporter } = require("../../helpers/nodemailer.helper");
+const Parameter = require("../../models/security/parameter.model");
 
 const register = async (req = request, res = response) => {
     //Extract body parameters
-    const { name = "", username = "", email = "", password = "", confir_password = "", terms_and_policies = 0 } = req.body;
+    const { name = "", username = "", email = "", password = "", confir_password = "" } = req.body;
     try {
         //Validate that both passwords match
         if (password !== confir_password) {
@@ -41,7 +41,7 @@ const register = async (req = request, res = response) => {
         })
 
         //encrypt the password
-        const salt = bcrypt.genSaltSync(15);
+        const salt = bcrypt.genSaltSync(10);
         DBUser.CONTRASENA = bcrypt.hashSync(password, salt);
 
         //Save the user in the DB.

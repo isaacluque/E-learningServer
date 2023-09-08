@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { register } = require('../../controllers/user.controller');
+
 const { check } = require('express-validator');
 const { existUser, validateUserSpaces } = require('../../middlewares/user-validation');
 const { validatePasswordLength } = require('../../middlewares/validate-Password-Length');
@@ -7,6 +7,7 @@ const { validatePassword } = require('../../middlewares/validate-password');
 const { validateFields } = require('../../middlewares/validate-Fields');
 const { emailExisting } = require('../../middlewares/db-Validator');
 const { validateSpace } = require('../../middlewares/validate-spaces');
+const { register } = require('../../controllers/security/user.controller');
 
 
 const router = Router();

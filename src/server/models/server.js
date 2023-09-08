@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const routerAuth = require('../routes/security/auth.routes');
 const routerUser = require('../routes/security/user.routes');
+const routerStudent = require('../routes/student/student.routes');
 
 class Server {
     constructor() {
@@ -15,6 +16,9 @@ class Server {
             //Security
             auth:       '/auth',
             user:       '/user',
+
+            //Register Student
+            register:   '/register',
         }
 
         //Middlewares
@@ -34,8 +38,12 @@ class Server {
     }
 
     routes() {
+        //Security
         this.app.use(this.apiRoutes.auth, routerAuth);
         this.app.use(this.apiRoutes.user, routerUser);
+
+        //Student
+        this.app.use(this.apiRoutes.register, routerStudent);
     }
 
     listen() {
