@@ -38,9 +38,9 @@ const existUser = async( req = request, res = response, next ) => {
 
 const validateUserSpaces = ( req = request, res = response, next ) => {
 
-    const { username = "" } = req.body;
+    const { first_name = "", last_name = "" } = req.body;
 
-    if ( username.includes('  ') ) {
+    if ( first_name.includes('  ') || last_name.includes('  ')) {
         return res.status(400).json({
             ok: false,
             msg: 'No more than 1 white space is allowed between words in the name.'

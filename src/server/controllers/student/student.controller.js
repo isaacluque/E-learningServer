@@ -94,7 +94,9 @@ const postStudentNormal = async (req = request, res = response) => {
 
         return res.status(200).json({
             DBStudent,
-            DBStudentDetails
+            DBStudentDetails,
+            ok: true,
+            msg: 'Student created successfully!',
         })
     } catch (error) {
         console.log(error);
