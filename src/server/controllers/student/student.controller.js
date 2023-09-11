@@ -9,20 +9,18 @@ const bcrypt = require("bcryptjs");
 const StudenDetails = require("../../models/student/student-detail.model");
 
 const postStudentNormal = async (req = request, res = response) => {
-    const { student_type } = req.query;
-
     const { email,
         password,
-        confir_password,
+        confirm_password,
         username,
         first_name,
         last_name } = req.body
 
     try {
-        const studentType = parseInt(student_type, 10);
+        const studentType = 1;
 
         //Validate that both passwords match
-        if (password !== confir_password) {
+        if (password !== confirm_password) {
             return res.status(400).json({
                 ok: false,
                 msg: 'Passwords do not match.'
@@ -33,10 +31,10 @@ const postStudentNormal = async (req = request, res = response) => {
         const idRol = await Roles.findOne({ where: { ROL: 'STUDENT' } });
 
         const idStudentType = await StudentType.findOne({ where: { ID_TIPO_ESTUDIANTE: studentType } });
-
+        console.log(idStudentType);
         //Build the student in the model
         DBStudent = await Students.build({
-            ID_TIPO_STUDIANTE: idStudentType,
+            ID_TIPO_ESTUDIANTE: idStudentType.ID_TIPO_ESTUDIANTE,
             CORREO_ELECTRONICO: email,
             ID_ROL: idRol.ID_ROL
         })

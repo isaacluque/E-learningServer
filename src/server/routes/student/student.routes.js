@@ -14,7 +14,7 @@ router.post('/student_normal', [
     check('email', 'Email is invalid').isEmail(),
     check('email').custom(emailStudentExisting),
     check('password', 'Password is required').not().isEmpty(),
-    check('confir_password', 'Confirmation password is required').not().isEmpty(),
+    check('confirm_password', 'Confirmation password is required').not().isEmpty(),
     check('username', 'Username is required').not().isEmpty(),
     check('username', 'The maximum number of characters is 15').isLength({max: 15}),
     check('username', 'Whitespace is not allowed in user').custom(validateSpace),
