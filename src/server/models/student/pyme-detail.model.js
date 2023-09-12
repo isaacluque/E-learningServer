@@ -11,9 +11,6 @@ const PYMEDetails = connec.define(`tbl_mest_detalle_pyme`, {
     ID_ESTUDIANTE: {
         type: DataTypes.INTEGER
     },
-    CORREO_ELECTRONICO: {
-        type: DataTypes.STRING
-    },
     TELEFONO: {
         type: DataTypes.STRING
     },
@@ -25,6 +22,9 @@ const PYMEDetails = connec.define(`tbl_mest_detalle_pyme`, {
     },
     ID_UBICACION: {
         type: DataTypes.INTEGER
+    },
+    NOMBRE_USUARIO: {
+        type: DataTypes.STRING
     },
 }, {
     tableName: 'tbl_mest_detalle_pyme',
