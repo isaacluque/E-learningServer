@@ -5,7 +5,8 @@ const cors = require('cors');
 const routerAuth = require('../routes/security/auth.routes');
 const routerUser = require('../routes/security/user.routes');
 const routerStudent = require('../routes/student/student.routes');
-const routerLocation = require('../routes/location/location.routes');
+const routerLocation = require('../routes/student/location/location.routes');
+const routerCompanySize = require('../routes/student/company-size/company-size.routes');
 
 class Server {
     constructor() {
@@ -23,6 +24,9 @@ class Server {
 
             //Location
             location: '/location',
+
+            //Company size
+            companysize: '/company-size',
         }
 
         //Middlewares
@@ -51,6 +55,9 @@ class Server {
 
         //Location
         this.app.use(this.apiRoutes.location, routerLocation);
+
+        //Company size
+        this.app.use(this.apiRoutes.companysize, routerCompanySize);
     }
 
     listen() {
