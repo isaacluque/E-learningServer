@@ -52,8 +52,6 @@ const login = async (req = request, res = response) => {
             });
         }
 
-        
-
         //Get the duration of the session token
         const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURANCION_TOKEN_SESION'}});
         //Generate JWT
@@ -64,20 +62,11 @@ const login = async (req = request, res = response) => {
         user.INTENTOS = 0;                        // Reset attempts to 0
         user.PRIMER_INGRESO++                     // Increase revenue counter
         user.FECHA_ULTIMA_CONEXION = new Date();  // Log last connection
-        await user.save();
-
-        
+        await user.save();   
 
         return res.status(200).json({
             User: user,
             ok: true,
-            // id_user : user.ID_USUARIO,
-            // id_role: user.ID_ROL,
-            // role: roleName.ROL,
-            // state: user.ESTADO_USUARIO,
-            // username: user.NOMBRE_USUARIO,
-            // user: user.USUARIO,
-            // email: user.CORREO_ELECTRONICO,
             token
         });
 

@@ -138,7 +138,7 @@ const postStudentPYME = async (req = request, res = response) => {
         const idStudentType = await StudentType.findOne({ where: { ID_TIPO_ESTUDIANTE: studentType } });
         console.log(idStudentType);
         //Build the student in the model
-        DBStudent = await Students.build({
+        DBStudents = await Students.build({
             ID_TIPO_ESTUDIANTE: idStudentType.ID_TIPO_ESTUDIANTE,
             CORREO_ELECTRONICO: email,
             ID_ROL: idRol.ID_ROL,
@@ -147,10 +147,10 @@ const postStudentPYME = async (req = request, res = response) => {
 
         //encrypt the password
         const salt = bcrypt.genSaltSync(10);
-        DBStudent.CONTRASENA = bcrypt.hashSync(password, salt);
+        DBStudents.CONTRASENA = bcrypt.hashSync(password, salt);
 
         //Save the user in the DB.
-        await DBStudent.save();
+        await DBStudents.save();
 
         //Find the user created to save the password in the history
         const studentCreated = await Students.findOne({ where: { CORREO_ELECTRONICO: email } });
@@ -160,7 +160,7 @@ const postStudentPYME = async (req = request, res = response) => {
         //Save password in password history
         passHistory = await PasswordHistory.build({
             ID_ESTUDIANTE: studentCreated.ID_ESTUDIANTE,
-            CONTRASENA: DBStudent.CONTRASENA
+            CONTRASENA: DBStudents.CONTRASENA
         })
 
         //Save the password in the DB.
@@ -174,7 +174,7 @@ const postStudentPYME = async (req = request, res = response) => {
         }, {where: {ID_ESTUDIANTE: studentCreated.ID_ESTUDIANTE}})
 
 
-        const companySize = await CompanySize.findOne({where:{ID_TAMANO_EMPRESA: parseInt(company_size,10)}});
+        const companySize = await CompanySize.findOne({where:{ID_TAMANO_EMPRESA: company_size}});
         const companyLocation = await Location.findOne({where: {ID_UBICACION: location}})
 
         console.log({companySize});
@@ -200,7 +200,7 @@ const postStudentPYME = async (req = request, res = response) => {
         // send mail with defined transport object
         transporter.sendMail({
             from: `"${nameCompany.VALOR}" <${smtpUser.VALOR}>`, // sender address
-            to: `${DBStudent.CORREO_ELECTRONICO}`, // list of receivers
+            to: `${DBStudents.CORREO_ELECTRONICO}`, // list of receivers
             subject: "Pending Confirmation", // Subject line
             text: "Pending Confirmation", // plain text body
             html: `<b>${company_name} we will be in touch very soon.</b>`//, // html body
@@ -215,7 +215,7 @@ const postStudentPYME = async (req = request, res = response) => {
         });
 
         return res.status(200).json({
-            DBStudent,
+            DBStudents,
             DBPYMEDetails,
             ok: true,
             msg: 'Student PYME created successfully!',

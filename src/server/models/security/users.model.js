@@ -45,9 +45,6 @@ const Users = connec.define('tbl_ms_usuario',{
     },
     IMAGEN: {
         type: DataTypes.STRING
-    },
-    TERMINOS_Y_POLITICAS:{
-        type: DataTypes.BOOLEAN
     }
 }, {
     tableName: 'tbl_ms_usuario',
