@@ -2,15 +2,14 @@ const { response, request } = require("express");
 const jwt = require('jsonwebtoken');
 
 // Valid login token
-const validateJWT = (req, res = response, next) => {
+const validateJWT = (req = request, res = response, next) => {
 
     // Read token from header
     const token = req.header('x-token');
 
     try {
-
         // Use login seed
-        const { uid } = jwt.verify( token, process.env.SEMILLA_SECRETA_JWT_LOGIN );
+        const { uid } = jwt.verify( token, process.env.SEEDJWT );
         req.uid = uid;
         
     } catch (error) {

@@ -6,6 +6,7 @@ const generateJWT = require("../../helpers/generate-JWT.helper");
 const generateEmails = require("../../helpers/generate-Emails.helper");
 const Students = require("../../models/student/student.model");
 const StudenDetails = require("../../models/student/student-detail.model");
+const ViewDetailsNormalStudent = require("../../models/student/views/view-details-normal-student.model");
 
 const loginStudent = async (req = request, res = response) => {
     //Extract body parameters
@@ -57,7 +58,7 @@ const loginStudent = async (req = request, res = response) => {
         }
 
         //Get the duration of the session token
-        const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURANCION_TOKEN_SESION'}});
+        const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURACION_TOKEN_SESION'}});
         //Generate JWT
         const token = await generateJWT(student.ID_ESTUDIANTE, durationTokenSession.VALOR, process.env.SEEDJWT);
 
@@ -88,8 +89,6 @@ const revalidateTokenStudent = async(req = request, res = response) => {
     // Buscar usuario
     const student = await Students.findByPk( uid );
 
-    const studentDetails = await StudenDetails.findOne({where: {ID_ESTUDIANTE: student.ID_ESTUDIANTE}})
-
     // If the user is blocked, their tokens are invalid.
     if( !(student.ESTADO === 'ACTIVE') ) {
         return res.status(401).json({
@@ -100,23 +99,13 @@ const revalidateTokenStudent = async(req = request, res = response) => {
 
     // Generate the JWT
     //Get the duration of the session token
-    const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURANCION_TOKEN_SESION'}});
+    const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURACION_TOKEN_SESION'}});
     //Generate JWT
     const token = await generateJWT(uid, durationTokenSession.VALOR, process.env.SEEDJWT);
 
-    const roleName = await Roles.findByPk(student.ID_ROL);
-
     return res.status(200).json({
         ok: true,
-        id_student : student.ID_ESTUDIANTE,
-        id_type_student : student.ID_TIPO_ESTUDIANTE,
-        id_role: student.ID_ROL,
-        role: roleName.ROL,
-        state: student.ESTADO,
-        email: student.CORREO_ELECTRONICO,
-        username: studentDetails.NOMBRE_USUARIO,
-        first_name: studentDetails.NOMBRE,
-        last_name: studentDetails.APELLIDO,
+        Student: student,
         token
     });
 };

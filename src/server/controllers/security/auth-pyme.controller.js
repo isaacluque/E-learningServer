@@ -6,13 +6,15 @@ const generateJWT = require("../../helpers/generate-JWT.helper");
 const generateEmails = require("../../helpers/generate-Emails.helper");
 const Students = require("../../models/student/student.model");
 const PYMEDetails = require("../../models/student/pyme-detail.model");
+const ViewDetailsPYMEStudent = require("../../models/student/views/view-details-pyme-student.model");
+const { Op } = require("sequelize");
 
 const loginPYME = async (req = request, res = response) => {
     //Extract body parameters
     const { email, username, password } = req.body;
     try {
         //Search for the user by their email
-        const student = await Students.findOne({ where: { CORREO_ELECTRONICO: email} });
+        const student = await Students.findOne({ where: {[Op.or]: [{CORREO_ELECTRONICO: email}, {NOMBRE_USUARIO: username}]} });
         const attemptManagement = await Parameter.findOne({ where: { PARAMETRO: 'ADMIN_INTENTOS' } })
 
         if (!student) {
@@ -55,7 +57,7 @@ const loginPYME = async (req = request, res = response) => {
         }
 
         //Get the duration of the session token
-        const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURANCION_TOKEN_SESION'}});
+        const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURACION_TOKEN_SESION'}});
         //Generate JWT
         const token = await generateJWT(student.ID_ESTUDIANTE, durationTokenSession.VALOR, process.env.SEEDJWT);
 
@@ -84,12 +86,10 @@ const revalidateTokenPYME = async(req = request, res = response) => {
     const { uid } = req;
 
     // Buscar usuario
-    const student = await Students.findByPk( uid );
-
-    const pymeDetails = await PYMEDetails.findOne({where: {ID_ESTUDIANTE: student.ID_ESTUDIANTE}})
+    const detailspymestudent = await ViewDetailsPYMEStudent.findByPk( uid );
 
     // If the user is blocked, their tokens are invalid.
-    if( !(student.ESTADO === 'ACTIVE') ) {
+    if( !(detailspymestudent.ESTADO === 'ACTIVE') ) {
         return res.status(401).json({
             ok: false,
             msg: 'The student does not have access, talk to the administrator'
@@ -97,23 +97,13 @@ const revalidateTokenPYME = async(req = request, res = response) => {
     };
 
     //Get the duration of the session token
-    const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURANCION_TOKEN_SESION'}});
+    const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURACION_TOKEN_SESION'}});
     //Generate JWT
     const token = await generateJWT(uid, durationTokenSession.VALOR, process.env.SEEDJWT);
 
-    const roleName = await Roles.findByPk(student.ID_ROL);
-
     return res.status(200).json({
         ok: true,
-        id_student : student.ID_ESTUDIANTE,
-        id_type_student : student.ID_TIPO_ESTUDIANTE,
-        id_role: student.ID_ROL,
-        role: roleName.ROL,
-        state: student.ESTADO,
-        email: student.CORREO_ELECTRONICO,
-        username: pymeDetails.NOMBRE_USUARIO,
-        phone_number: pymeDetails.TELEFONO,
-        company_name: pymeDetails.NOMBRE_EMPRESA,
+        DetailsPYMEStudentToken: detailspymestudent,
         token
     });
 };

@@ -53,11 +53,9 @@ const login = async (req = request, res = response) => {
         }
 
         //Get the duration of the session token
-        const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURANCION_TOKEN_SESION'}});
+        const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURACION_TOKEN_SESION'}});
         //Generate JWT
         const token = await generateJWT(user.ID_USUARIO, durationTokenSession.VALOR, process.env.SEEDJWT);
-
-        const roleName = await Roles.findByPk(user.ID_ROL);
 
         user.INTENTOS = 0;                        // Reset attempts to 0
         user.PRIMER_INGRESO++                     // Increase revenue counter
@@ -79,7 +77,7 @@ const login = async (req = request, res = response) => {
     }
 };
 
-const revalidateToken = async(req = request, res = response) => {
+const revalidateTokenAdmin = async(req = request, res = response) => {
 
     // Get the uid of the token validator middleware
     const { uid } = req;
@@ -97,26 +95,18 @@ const revalidateToken = async(req = request, res = response) => {
 
     // Generate the JWT
     //Get the duration of the session token
-    const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURANCION_TOKEN_SESION'}});
+    const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURACION_TOKEN_SESION'}});
     //Generate JWT
     const token = await generateJWT(uid, durationTokenSession.VALOR, process.env.SEEDJWT);
 
-    const roleName = await Roles.findByPk(user.ID_ROL);
-
     return res.status(200).json({
+        User: user,
         ok: true,
-        id_user : user.ID_USUARIO,
-        id_role: user.ID_ROL,
-        role: roleName.ROL,
-        state: user.ESTADO_USUARIO,
-        username: user.NOMBRE_USUARIO,
-        user: user.USUARIO,
-        email: user.CORREO_ELECTRONICO,
         token
     });
 };
 
 module.exports = {
     login,
-    revalidateToken
+    revalidateTokenAdmin
 }
