@@ -8,7 +8,7 @@ const Inscriptions = connec.define(`tbl_mcur_inscripcion`, {
         type: DataTypes.INTEGER,
         primaryKey: true
     },
-    ID_ESTUDIANTE: {
+    ID_USUARIO: {
         type: DataTypes.INTEGER
     },
     ID_CURSO: {

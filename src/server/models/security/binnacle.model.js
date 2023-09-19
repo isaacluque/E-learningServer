@@ -20,9 +20,6 @@ const Binnacles = connec.define(`tbl_ms_bitacora`, {
     ID_INSTRUCTOR: {
         type: DataTypes.INTEGER
     },
-    ID_ESTUDIANTE: {
-        type: DataTypes.INTEGER
-    },
     ACCION: {
         type: DataTypes.STRING
     },

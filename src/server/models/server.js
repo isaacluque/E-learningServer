@@ -3,10 +3,7 @@ const express = require('express');
 const cors = require('cors');
 
 const routerAuthAdmin = require('../routes/security/auth-admin.routes');
-const routerAuthStudent = require('../routes/security/auth-student.routes');
-const routerAuthPYME = require('../routes/security/auth-pyme.routes');
 const routerUser = require('../routes/security/user.routes');
-const routerStudent = require('../routes/student/student.routes');
 const routerLocation = require('../routes/student/location/location.routes');
 const routerCompanySize = require('../routes/student/company-size/company-size.routes');
 
@@ -50,12 +47,8 @@ class Server {
     routes() {
         //Security
         this.app.use(this.apiRoutes.auth, routerAuthAdmin);
-        this.app.use(this.apiRoutes.auth, routerAuthStudent);
-        this.app.use(this.apiRoutes.auth, routerAuthPYME);
+        this.app.use(this.apiRoutes.register, routerUser);
         this.app.use(this.apiRoutes.user, routerUser);
-
-        //Student
-        this.app.use(this.apiRoutes.register, routerStudent);
 
         //Location
         this.app.use(this.apiRoutes.location, routerLocation);

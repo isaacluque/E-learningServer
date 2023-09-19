@@ -4,10 +4,10 @@ const passwordValidator = require('password-validator');
 //validation configuration
 const schema = new passwordValidator();
 schema
-    .has().min(1).uppercase(1, 'At least one uppercase character')  // Contain min 1 Uppercase
-    .has().min(1).lowercase(1, 'At least one lowercase character')  // Contain min 1 Lowercase
-    .has().min(1).symbols(1, 'At least one special character')      // Contain min 1 symbol
-    .has().min(1).digits(1, 'At least one numeric character')       // Contain min 1 number
+    .has().min(1).uppercase(1,  'The password must have at least one uppercase character')  // Contain min 1 Uppercase
+    .has().min(1).lowercase(1,  'The password must have at least one lowercase character')  // Contain min 1 Lowercase
+    .has().min(1).symbols(1,    'The password must have at least one special character')      // Contain min 1 symbol
+    .has().min(1).digits(1,     'The password must have at least one numeric character')       // Contain min 1 number
 
 // Middleware validator
 const validatePassword = (req = request, res = response, next) => {

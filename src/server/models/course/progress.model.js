@@ -8,7 +8,7 @@ const Progresses = connec.define(`tbl_mcur_progreso`, {
         type: DataTypes.INTEGER,
         primaryKey: true
     },
-    ID_ESTUDIANTE: {
+    ID_USUARIO: {
         type: DataTypes.INTEGER
     },
     ID_SECCION: {

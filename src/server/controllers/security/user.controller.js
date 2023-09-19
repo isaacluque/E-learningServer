@@ -7,13 +7,17 @@ const PasswordHistory = require("../../models/security/password-history.model");
 
 const { createTransporter } = require("../../helpers/nodemailer.helper");
 const Parameter = require("../../models/security/parameter.model");
+const { Op } = require("sequelize");
+const CompanySize = require("../../models/student/company-size.model");
+const Location = require("../../models/student/location.model");
+const PYMEDetails = require("../../models/student/pyme-detail.model");
 
-const register = async (req = request, res = response) => {
+const registerStudent = async (req = request, res = response) => {
     //Extract body parameters
-    const { name = "", username = "", email = "", password = "", confir_password = "" } = req.body;
+    const { name = "", username = "", email = "", password = "", confirm_password = ""} = req.body;
     try {
         //Validate that both passwords match
-        if (password !== confir_password) {
+        if (password !== confirm_password) {
             return res.status(400).json({
                 ok: false,
                 msg: 'Passwords do not match.'
@@ -33,11 +37,12 @@ const register = async (req = request, res = response) => {
 
         //Build the user in the model
         DBUser = await Users.build({
-            USUARIO: name,
-            NOMBRE_USUARIO: username,
+            USUARIO: username,
+            NOMBRE_USUARIO: name,
             CORREO_ELECTRONICO: email,
             // TERMINOS_Y_POLITICAS: terms_and_policies,
-            ID_ROL: idRol.ID_ROL
+            ID_ROL: idRol.ID_ROL,
+            ESTADO_USUARIO: 'ACTIVE'
         })
 
         //encrypt the password
@@ -48,7 +53,7 @@ const register = async (req = request, res = response) => {
         await DBUser.save();
 
         //Find the user created to save the password in the history
-        const userCreated = await Users.findOne({ where: { USUARIO: name } });
+        const userCreated = await Users.findOne({ where: { USUARIO: username } });
 
         //Save password in password history
         passHistory = await PasswordHistory.build({
@@ -60,7 +65,7 @@ const register = async (req = request, res = response) => {
         await passHistory.save();
 
         // Get created user ID
-        const user = await Users.findOne({ where: { USUARIO: name } });
+        const user = await Users.findOne({ where: {CORREO_ELECTRONICO: email}});
         //Update who modified and created it
         await Users.update({
             CREADO_POR: user.ID_USUARIO,
@@ -89,7 +94,7 @@ const register = async (req = request, res = response) => {
         return res.status(201).json({
             ok: true,
             msg: 'User created successfully!',
-            DBUser
+            User: DBUser
         });
 
     } catch (error) {
@@ -98,9 +103,123 @@ const register = async (req = request, res = response) => {
             msg: 'Error'
         });
     };
-};
+}
+
+const registerPYME = async (req = request, res = response) => {
+    const { 
+        name,
+        email,
+        password,
+        confirm_password,
+        username,
+        phone_number,
+        company_name,
+        company_size,
+        location } = req.body
+
+    try {
+
+        //Validate that both passwords match
+        if (password !== confirm_password) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Passwords do not match.'
+            });
+        };
+
+        //Get the default role
+        const idRol = await Roles.findOne({ where: { ROL: 'PYME' } });
+
+        //Build the student in the model
+        DBUser = await Users.build({
+            USUARIO: username,
+            NOMBRE_USUARIO: name, 
+            CORREO_ELECTRONICO: email,
+            ID_ROL: idRol.ID_ROL,
+            ESTADO_USUARIO: 'PENDING'
+        })
+
+        //encrypt the password
+        const salt = bcrypt.genSaltSync(10);
+        DBUser.CONTRASENA = bcrypt.hashSync(password, salt);
+
+        //Save the user in the DB.
+        await DBUser.save();
+
+        //Find the user created to save the password in the history
+        const studentCreated = await Users.findOne({ where: { CORREO_ELECTRONICO: email } });
+
+        //Save password in password history
+        passHistory = await PasswordHistory.build({
+            ID_USUARIO: studentCreated.ID_USUARIO,
+            CONTRASENA: DBUser.CONTRASENA
+        })
+
+        //Save the password in the DB.
+        await passHistory.save();
+
+        // // Get created student ID
+        // const student = await Students.findOne({ where: { CORREO_ELECTRONICO: email } });
+        //Update who modified and created it
+        await Users.update({
+            CREADO_POR: studentCreated.ID_USUARIO,
+            MODIFICADO_POR: studentCreated.ID_USUARIO
+        }, {where: {ID_USUARIO: studentCreated.ID_USUARIO}})
+
+
+        const companySize = await CompanySize.findOne({where:{ID_TAMANO_EMPRESA: company_size}});
+        const companyLocation = await Location.findOne({where: {ID_UBICACION: location}})
+
+        DBPYMEDetails = await PYMEDetails.build({
+            ID_USUARIO: studentCreated.ID_USUARIO,
+            TELEFONO: phone_number,
+            NOMBRE_EMPRESA: company_name,
+            ID_TAMANO_EMPRESA: companySize.ID_TAMANO_EMPRESA,
+            ID_UBICACION: companyLocation.ID_UBICACION
+        })
+
+        await DBPYMEDetails.save();
+
+        //Parameters
+        const nameCompany = await Parameter.findOne({ where: { PARAMETRO: 'NOMBRE_EMPRESA' } });
+        const smtpUser = await Parameter.findOne({ where: { PARAMETRO: 'SMTP_USER' } });
+        const smtpUserYahoo = await Parameter.findOne({where: {PARAMETRO: 'SMTP_USER_YAHOO'}})
+
+        const transporter = await createTransporter();
+
+        // send mail with defined transport object
+        transporter.sendMail({
+            from: `"${nameCompany.VALOR}" <${smtpUser.VALOR}>`, // sender address
+            to: `${DBUser.CORREO_ELECTRONICO}`, // list of receivers
+            subject: "Pending Confirmation", // Subject line
+            text: "Pending Confirmation", // plain text body
+            html: `<b>${company_name} we will be in touch very soon.</b>`//, // html body
+        });
+
+        transporter.sendMail({
+            from: `"${nameCompany.VALOR}" <${smtpUser.VALOR}>`, // sender address
+            to: `${smtpUser.VALOR}`, // list of receivers
+            subject: "PYME student confirmation", // Subject line
+            text: "PYME student confirmation", // plain text body
+            html: `<b>The ${company_name} company has been registered, please verify your data.</b>`//, // html body
+        });
+
+        return res.status(200).json({
+            User: DBUser,
+            DBPYMEDetails,
+            ok: true,
+            msg: 'Student PYME created successfully!',
+        })
+    } catch (error) {
+        console.log(error);
+        return res.json({
+            msg: 'Error'
+        });
+    }
+}
 
 module.exports = {
-    register
+    registerStudent,
+    registerPYME
 }
 

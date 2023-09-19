@@ -8,7 +8,7 @@ const ShoppingHistory = connec.define(`tbl_mc_hist_compra`, {
         type: DataTypes.INTEGER,
         primaryKey: true
     },
-    ID_ESTUDIANTE: {
+    ID_USUARIO: {
         type: DataTypes.INTEGER
     },
     ID_COMPRA: {

@@ -18,7 +18,7 @@ const Instructors = connec.define('tbl_mins_instructor',{
     INTRODUCCION: {
         type: DataTypes.TEXT
     },
-    ID_ESTUDIANTE: {
+    ID_USUARIO: {
         type: DataTypes.INTEGER
     },
     EXP_LABORAL: {

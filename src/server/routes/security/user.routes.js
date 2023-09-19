@@ -6,31 +6,70 @@ const { validatePasswordLength } = require('../../middlewares/validate-Password-
 const { validatePassword } = require('../../middlewares/validate-password');
 const { validateFields } = require('../../middlewares/validate-Fields');
 const { emailExisting } = require('../../middlewares/db-Validator');
-const { validateSpace } = require('../../middlewares/validate-spaces');
-const { register } = require('../../controllers/security/user.controller');
+const { validateSpace, validateDoubleSpace } = require('../../middlewares/validate-spaces');
+const { registerStudent, registerPYME } = require('../../controllers/security/user.controller');
 
 
 const router = Router();
 
-router.post('/register',[
+router.post('/register-student',[
     //user validations
-    check('name', 'user validations').not().isEmpty(),
-    check('name', 'The maximum number of characters is 15').isLength({max: 15}),
-    check('name', 'Whitespace is not allowed in user').custom(validateSpace),
-    check('name', 'User can only contain letters').isAlpha('es-ES'),
+    check('name', 'Name is required').not().isEmpty(),
+    check('name', 'No more than 2 blank spaces are allowed in your name.').custom(validateDoubleSpace),
+    check('name', 'User can only contain letters').isAlpha('es-ES', {ignore:' '}),
     // username validations
     check('username', 'Username is required').not().isEmpty(),
+    check('username', 'The maximum number of characters is 15').isLength({max: 15}),
+    check('username', 'The minimum number of characters is 8').isLength({min: 4}),
+    check('username', 'Whitespace is not allowed in user').custom(validateSpace),
     validateUserSpaces,
     // email validations
     check('email', 'El correo es obligatorio').not().isEmpty(),
     check('email', 'El correo no es válido').isEmail(),
     check('email').custom(emailExisting),
+    check('password', 'Password is required').not().isEmpty(),
+    check('password', 'The maximum number of characters is 12').isLength({max: 12}),
+    check('password', 'Blanks are not allowed in the password').custom(validateSpace),
+    check('confirm_password', 'Blank spaces are not allowed in the password confirmation').custom(validateSpace),
+    check('confirm_password', 'Confirmation password is required').not().isEmpty(),
+    check('confirm_password', 'The minimum number of characters is 8').isLength({min: 8}),
     // validate password
     existUser,
     validatePasswordLength,
     validatePassword,
     validateFields
-], register);
+], registerStudent);
+
+router.post('/register-pyme', [
+    //user validations
+    check('name', 'Name is required').not().isEmpty(),
+    check('name', 'No more than 2 blank spaces are allowed in your name.').custom(validateDoubleSpace),
+    check('name', 'User can only contain letters').isAlpha('es-ES', {ignore:' '}),
+    // username validations
+    check('username', 'Username is required').not().isEmpty(),
+    check('username', 'The maximum number of characters is 15').isLength({max: 15}),
+    check('username', 'The minimum number of characters is 8').isLength({min: 8}),
+    check('username', 'Whitespace is not allowed in user').custom(validateSpace),
+    validateUserSpaces,
+    // email validations
+    check('email', 'El correo es obligatorio').not().isEmpty(),
+    check('email', 'El correo no es válido').isEmail(),
+    check('email').custom(emailExisting),
+    check('password', 'Password is required').not().isEmpty(),
+    check('password', 'The maximum number of characters is 12').isLength({max: 12}),
+    check('password', 'Blanks are not allowed in the password').custom(validateSpace),
+    check('confirm_password', 'Blank spaces are not allowed in the password confirmation').custom(validateSpace),
+    check('confirm_password', 'Confirmation password is required').not().isEmpty(),
+    check('confirm_password', 'The minimum number of characters is 8').isLength({min: 8}),
+    check('phone_number', 'Phone number is required').not().isEmpty(),
+    check('company_name', 'Company name is required').not().isEmpty(),
+    check('company_size', 'Company size is required').not().isEmpty(),
+    check('location', 'Location is required').not().isEmpty(),
+    existUser,
+    validatePasswordLength,
+    validatePassword,
+    validateFields
+],registerPYME);
 
 
 module.exports = router;

@@ -8,7 +8,7 @@ const Ratings = connec.define(`tbl_mcur_valoracion`, {
         type: DataTypes.INTEGER,
         primaryKey: true
     },
-    ID_ESTUDIANTE: {
+    ID_USUARIO: {
         type: DataTypes.INTEGER
     },
     ID_CURSO: {

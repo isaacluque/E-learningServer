@@ -11,7 +11,7 @@ const Comments = connec.define(`tbl_mcur_comentario`, {
     ID_CURSO: {
         type: DataTypes.INTEGER
     },
-    ID_ESTUDIANTE: {
+    ID_USUARIO: {
         type: DataTypes.INTEGER
     },
     CONTENIDO: {

@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { login, revalidateTokenAdmin } = require('../../controllers/security/auth-admin.controller');
+const { login, revalidateToken } = require('../../controllers/security/auth-admin.controller');
 const { check } = require('express-validator');
 const { validateFields } = require('../../middlewares/validate-Fields');
 const { validateSpacesLogin } = require('../../middlewares/validate-spaces');
@@ -7,7 +7,7 @@ const { validateJWT } = require('../../middlewares/validate-JWT');
 
 const router = Router();
 
-router.post('/login-admin', [
+router.post('/login', [
     check('email', 'Email is required').not().isEmpty(),
     check('password', 'Password is required').not().isEmpty(),
     validateSpacesLogin,
@@ -15,9 +15,9 @@ router.post('/login-admin', [
 ],login);
 
 //Validate and revalidate token
-router.get('/revalidateAdminToken', [
+router.get('/revalidateToken', [
     validateJWT
-], revalidateTokenAdmin)
+], revalidateToken)
 
 module.exports = router;
 

@@ -12,40 +12,40 @@ const login = async (req = request, res = response) => {
     const { email, password } = req.body;
     try {
         //Search for the user by their email
-        const user = await Users.findOne({ where: { CORREO_ELECTRONICO: email } });
+        const DBUser = await Users.findOne({ where: { CORREO_ELECTRONICO: email } });
         const attemptManagement = await Parameter.findOne({ where: { PARAMETRO: 'ADMIN_INTENTOS' } })
 
-        if (!user) {
+        if (!DBUser) {
             return res.status(404).json({
                 ok: false,
                 msg: 'Email or password invalid'
             })
         }
 
-        if(user.ESTADO_USUARIO === 'BLOCKED'){
+        if(DBUser.ESTADO_USUARIO === 'BLOCKED'){
             return res.status(401).json({
                 ok: false,
                 msg: `The user is blocked, talk to the administrator or change the password.`
             })
         }
 
-        const validate_password = bcrypt.compareSync(password, user.CONTRASENA)
+        const validate_password = bcrypt.compareSync(password, DBUser.CONTRASENA)
         if (!validate_password) {
-            user.INTENTOS++
+            DBUser.INTENTOS++
             console.log(user.INTENTOS);
-            if (!(user.USUARIO === 'ROOT') && (user.INTENTOS === parseInt(attemptManagement.VALOR, 10))) {
-                user.ESTADO_USUARIO = 'BLOCKED'
+            if (!(DBUser.USUARIO === 'ROOT') && (user.INTENTOS === parseInt(attemptManagement.VALOR, 10))) {
+                DBUser.ESTADO_USUARIO = 'BLOCKED'
 
-                await generateEmails(user.CORREO_ELECTRONICO, user.USUARIO);
+                await generateEmails(DBUser.CORREO_ELECTRONICO, DBUser.USUARIO);
 
-                await user.save();
+                await DBUser.save();
 
                 return res.status(401).json({
                     ok: false,
                     msg: 'Your account has been blocked for exceeding the number of attempts allowed. Please change your password.'
                 });
             }
-            await user.save();
+            await DBUser.save();
 
             return res.status(401).json({
                 msg: 'Email or password invalid'
@@ -55,15 +55,15 @@ const login = async (req = request, res = response) => {
         //Get the duration of the session token
         const durationTokenSession = await Parameter.findOne({where:{PARAMETRO: 'DURACION_TOKEN_SESION'}});
         //Generate JWT
-        const token = await generateJWT(user.ID_USUARIO, durationTokenSession.VALOR, process.env.SEEDJWT);
+        const token = await generateJWT(DBUser.ID_USUARIO, durationTokenSession.VALOR, process.env.SEEDJWT);
 
-        user.INTENTOS = 0;                        // Reset attempts to 0
-        user.PRIMER_INGRESO++                     // Increase revenue counter
-        user.FECHA_ULTIMA_CONEXION = new Date();  // Log last connection
-        await user.save();   
+        DBUser.INTENTOS = 0;                        // Reset attempts to 0
+        DBUser.PRIMER_INGRESO++                     // Increase revenue counter
+        DBUser.FECHA_ULTIMA_CONEXION = new Date();  // Log last connection
+        await DBUser.save();   
 
         return res.status(200).json({
-            User: user,
+            User: DBUser,
             ok: true,
             token
         });
@@ -74,10 +74,10 @@ const login = async (req = request, res = response) => {
             ok: false,
             msg: 'Talk to the administrator.'
         });
-    }
-};
+    };
+}
 
-const revalidateTokenAdmin = async(req = request, res = response) => {
+const revalidateToken = async(req = request, res = response) => {
 
     // Get the uid of the token validator middleware
     const { uid } = req;
@@ -108,5 +108,5 @@ const revalidateTokenAdmin = async(req = request, res = response) => {
 
 module.exports = {
     login,
-    revalidateTokenAdmin
+    revalidateToken
 }
