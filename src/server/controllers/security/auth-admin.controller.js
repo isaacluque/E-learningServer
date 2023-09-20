@@ -32,8 +32,7 @@ const login = async (req = request, res = response) => {
         const validate_password = bcrypt.compareSync(password, DBUser.CONTRASENA)
         if (!validate_password) {
             DBUser.INTENTOS++
-            console.log(user.INTENTOS);
-            if (!(DBUser.USUARIO === 'ROOT') && (user.INTENTOS === parseInt(attemptManagement.VALOR, 10))) {
+            if (!(DBUser.USUARIO === 'ROOT') && (DBUser.INTENTOS === parseInt(attemptManagement.VALOR, 10))) {
                 DBUser.ESTADO_USUARIO = 'BLOCKED'
 
                 await generateEmails(DBUser.CORREO_ELECTRONICO, DBUser.USUARIO);
