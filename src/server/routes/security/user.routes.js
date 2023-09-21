@@ -7,7 +7,7 @@ const { validatePassword } = require('../../middlewares/validate-password');
 const { validateFields } = require('../../middlewares/validate-Fields');
 const { emailExisting } = require('../../middlewares/db-Validator');
 const { validateSpace, validateDoubleSpace } = require('../../middlewares/validate-spaces');
-const { registerStudent, registerPYME } = require('../../controllers/security/user.controller');
+const { registerStudent, registerPYME, getUsers, getUser } = require('../../controllers/security/user.controller');
 
 
 const router = Router();
@@ -70,6 +70,10 @@ router.post('/register-pyme', [
     validatePassword,
     validateFields
 ],registerPYME);
+
+router.get('/', getUsers);
+
+router.get('/:id_user', getUser)
 
 
 module.exports = router;

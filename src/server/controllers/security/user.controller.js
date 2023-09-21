@@ -11,6 +11,7 @@ const { Op } = require("sequelize");
 const CompanySize = require("../../models/student/company-size.model");
 const Location = require("../../models/student/location.model");
 const PYMEDetails = require("../../models/student/pyme-detail.model");
+const ViewUsers = require("../../models/security/views/view-user.model");
 
 const registerStudent = async (req = request, res = response) => {
     //Extract body parameters
@@ -218,8 +219,107 @@ const registerPYME = async (req = request, res = response) => {
     }
 }
 
+const getUsers = async (req = request, res = response) =>{
+
+    let {lim, from = 0, search = ""} = req.query;
+
+    try {
+
+        if(!lim || lim === "") {
+            const { VALOR } = await Parameter.findOne({where: {PARAMETRO: 'LIMITE_REGISTROS'}});
+            lim = VALOR;
+        }
+
+        if(from === "") {
+            from = 0;
+        }
+
+        const users = await ViewUsers.findAll({
+            limit: parseInt(lim, 10),
+            offset: parseInt(from, 10),
+            where: {
+                [Op.or]: [{
+                    USUARIO: {
+                        [Op.like]: `%${search}%`
+                    }
+                }, 
+                {
+                    NOMBRE_USUARIO: {
+                        [Op.like]: `%${search}%`
+                    },
+                }, 
+                {
+                    ROL: {
+                        [Op.like]: `%${search}%`
+                    }
+                }]
+            }
+        });
+
+        const countUsers = await ViewUsers.count({ where: {
+            [Op.or]: [
+                {
+                    USUARIO: {
+                        [Op.like]: `%${search}%`
+                    }
+                }, 
+                {
+                    NOMBRE_USUARIO: {
+                        [Op.like]: `%${search}%`
+                    },
+                }, 
+                {
+                    ROL: {
+                        [Op.like]: `%${search}%`
+                    }
+                }
+            ]
+        }})
+    
+        return res.json({
+            ok: true,
+            lim,
+            countUsers,
+            search,
+            ViewUser: users
+        })
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: error
+        })
+    }
+
+}
+
+const getUser = async (req = request, res = response) =>{
+
+    let {id_user} = req.params;
+
+    try {
+        const user = await ViewUsers.findAll({ where: {ID_USUARIO: id_user}})
+    
+        return res.json({
+            ok: true,
+            ViewUser: user
+        })
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: error
+        })
+    }
+
+}
+
 module.exports = {
     registerStudent,
-    registerPYME
+    registerPYME,
+    getUsers,
+    getUser
 }
 
