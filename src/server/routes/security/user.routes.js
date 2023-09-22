@@ -1,13 +1,13 @@
 const { Router } = require('express');
 
-const { check } = require('express-validator');
+const { check, body } = require('express-validator');
 const { existUser, validateUserSpaces } = require('../../middlewares/user-validation');
 const { validatePasswordLength } = require('../../middlewares/validate-Password-Length');
 const { validatePassword } = require('../../middlewares/validate-password');
 const { validateFields } = require('../../middlewares/validate-Fields');
 const { emailExisting } = require('../../middlewares/db-Validator');
 const { validateSpace, validateDoubleSpace } = require('../../middlewares/validate-spaces');
-const { registerStudent, registerPYME, getUsers, getUser } = require('../../controllers/security/user.controller');
+const { registerStudent, registerPYME, getUsers, getUser, putUser } = require('../../controllers/security/user.controller');
 
 
 const router = Router();
@@ -74,6 +74,12 @@ router.post('/register-pyme', [
 router.get('/', getUsers);
 
 router.get('/:id_user', getUser)
+
+router.put('/update-user/:id_user', [
+    check('username', 'Username must be letters').if(body('username').exists()).if(body('username').not().equals('')).isAlpha('es-ES', {ignore: ' '}),
+    check('user', 'The user must be letters or already exists').if(body('user').exists()).if(body('user').not().equals('')).isAlpha('es-ES', {ignore: ' '}),
+    check('email', 'The email already exists or is invalid').if(body('email').exists()).if(body('email').not().equals('')).isEmail(),
+], putUser);
 
 
 module.exports = router;

@@ -13,6 +13,9 @@ const SocialNetwork = connec.define(`tbl_mins_red_social`, {
     },
     ID_INSTRUCTOR: {
         type: DataTypes.INTEGER
+    },
+    ID_USUARIO: {
+        type: DataTypes.INTEGER
     }
 }, {
     tableName: 'tbl_mins_red_social',

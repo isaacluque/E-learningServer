@@ -316,10 +316,77 @@ const getUser = async (req = request, res = response) =>{
 
 }
 
+const putUser = async (req = request, res = response) => {
+
+    const {id_user = ""} = req.params;
+
+    const {user = "", username = "", status = "", id_role = "", email = "", imagen = "", id_social_network = "", id_modifier = ""} = req.body;
+
+    try {
+        const searchUser = await Users.findByPk(id_user);
+    if(!searchUser) {
+        return res.status(404).json({
+            ok: false,
+            msg: 'The student does not exist'
+        })
+    }
+
+    //Avoid modifying the ROOT user
+    if(searchUser.USUARIO === 'ROOT') {
+        if(user !== ""){
+            return res.status(404).json({
+                ok: false,
+                msg: 'You cannot modify the ROOT name'
+            })
+        }
+        if(username !== ""){
+            return res.status(404).json({
+                ok: false,
+                msg: 'You cannot modify the ROOT username'
+            })
+        }
+        if(status !== ""){
+            return res.status(404).json({
+                ok: false,
+                msg: 'You cannot modify the ROOT status'
+            })
+        }
+        if(id_role !== ""){
+            return res.status(404).json({
+                ok: false,
+                msg: 'You cannot modify the ROOT role'
+            })
+        }
+        if(email !== ""){
+            return res.status(404).json({
+                ok: false,
+                msg: 'You cannot modify the ROOT email'
+            })
+        }
+    }
+
+    if(!((searchUser.USUARIO == user || user === "")
+        &&(searchUser.NOMBRE_USUARIO == username || username === "")
+        &&(searchUser.ESTADO_USUARIO == status || status === "")
+        &&(searchUser.ID_ROL == id_role || id_role === "")
+        &&(searchUser.IMAGEN == imagen || imagen === ""))){
+
+    }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Talk to the administrator.'
+        })
+    }
+    
+}
+
 module.exports = {
     registerStudent,
     registerPYME,
     getUsers,
-    getUser
+    getUser,
+    putUser
 }
 
