@@ -12,6 +12,7 @@ const CompanySize = require("../../models/student/company-size.model");
 const Location = require("../../models/student/location.model");
 const PYMEDetails = require("../../models/student/pyme-detail.model");
 const ViewUsers = require("../../models/security/views/view-user.model");
+const { generateEmailchanges } = require("../../helpers/generate-Emails.helper");
 
 const registerStudent = async (req = request, res = response) => {
     //Extract body parameters
@@ -365,13 +366,49 @@ const putUser = async (req = request, res = response) => {
         }
     }
 
-    if(!((searchUser.USUARIO == user || user === "")
-        &&(searchUser.NOMBRE_USUARIO == username || username === "")
+    if(! ((searchUser.USUARIO == username || username === "")
+        &&(searchUser.NOMBRE_USUARIO == user || user === "")
         &&(searchUser.ESTADO_USUARIO == status || status === "")
         &&(searchUser.ID_ROL == id_role || id_role === "")
+        &&(searchUser.CORREO_ELECTRONICO == email || email === "")
         &&(searchUser.IMAGEN == imagen || imagen === ""))){
 
+            await generateEmailchanges(id_user, user, username, status, id_role, email, imagen,searchUser.USUARIO, searchUser.NOMBRE_USUARIO, searchUser.ESTADO_USUARIO, searchUser.ID_ROL, searchUser.CORREO_ELECTRONICO, searchUser.IMAGEN); 
     }
+
+    await searchUser.update({
+        USUARIO: username !== "" ? username : Users.USUARIO,
+        NOMBRE_USUARIO: user !== "" ? user : Users.NOMBRE_USUARIO,
+        ESTADO_USUARIO: status !== "" ? status : Users.ESTADO_USUARIO,
+        ID_ROL: id_role !== "" ? id_role : Users.ID_ROL,
+        CORREO_ELECTRONICO: email !== "" ? email : Users.CORREO_ELECTRONICO,
+        IMAGEN: imagen !== "" ? imagen : Users.IMAGEN,
+        MODIFICADO_POR: id_modifier
+    }, {
+        where: {
+            ID_USUARIO: id_user
+        }
+    });
+
+    if(email !== "" &&(username === "" && status === "" && id_role === "" && user === "" && imagen === "")) {
+        return res.status(200).json({
+            ok: true,
+            msg: 'The email has been updated.'
+        })
+    }
+
+    if(username !== "" &&(user === "" && status === "" && id_role === "" && email === "" && imagen === "")) {
+        return res.status(200).json({
+            ok: true,
+            msg: 'The username has been updated.'
+        })
+    }
+
+    return res.json({
+        ok: true,
+        msg: `${searchUser.USUARIO} user data has been updated`
+    });
+
     } catch (error) {
         console.log(error);
         return res.status(500).json({

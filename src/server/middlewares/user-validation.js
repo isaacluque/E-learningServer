@@ -1,6 +1,7 @@
 const { response, request } = require("express");
 
 const Users = require("../models/security/users.model");
+const { Op } = require("sequelize");
 
 const existEmail = async( req = request, res = response, next ) => {
 
@@ -36,6 +37,31 @@ const existUser = async( req = request, res = response, next ) => {
     next()
 }
 
+const existUserUpdated = async( req = request, res = response, next ) => {
+
+    const { id_user } = req.params;
+    const { user = "" } = req.body;
+
+    // Verificar el usuario
+    let users = await Users.findOne({
+        where: {    //Where ROL = rol and NOT ID_ROL = id_rol
+            USUARIO: user,
+            [Op.not] : [
+                {ID_USUARIO: id_user}
+            ]       
+        }
+    });
+
+    if ( users ) {
+        return res.status(400).json({
+            ok: false,
+            msg: 'This user is already registered'
+        })
+    }
+
+    next()
+}
+
 const validateUserSpaces = ( req = request, res = response, next ) => {
 
     const { first_name = "", last_name = "" } = req.body;
@@ -54,4 +80,5 @@ module.exports = {
     existEmail,
     existUser,
     validateUserSpaces,
+    existUserUpdated,
 }
