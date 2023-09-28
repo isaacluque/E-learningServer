@@ -253,6 +253,11 @@ const getUsers = async (req = request, res = response) =>{
                     ROL: {
                         [Op.like]: `%${search}%`
                     }
+                },
+                {
+                    CORREO_ELECTRONICO: {
+                        [Op.like]: `%${search}%`
+                    }
                 }]
             }
         });
@@ -273,11 +278,15 @@ const getUsers = async (req = request, res = response) =>{
                     ROL: {
                         [Op.like]: `%${search}%`
                     }
-                }
-            ]
+                },
+                {
+                    CORREO_ELECTRONICO: {
+                        [Op.like]: `%${search}%`
+                    }
+                }]
         }})
     
-        return res.json({
+        res.json({
             ok: true,
             lim,
             countUsers,
