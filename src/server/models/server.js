@@ -1,6 +1,7 @@
 
 const express = require('express');
 const cors = require('cors');
+const fileUpload = require('express-fileupload');
 
 const routerAuthAdmin = require('../routes/security/auth-admin.routes');
 const routerUser = require('../routes/security/user.routes');
@@ -42,6 +43,11 @@ class Server {
         this.app.use(cors())
         //Read end Parse of body
         this.app.use(express.json());
+        // Carga de archivos
+        this.app.use(fileUpload({
+            useTempFiles : true,
+            tempFileDir : '/tmp/'
+        }));
     }
 
     routes() {

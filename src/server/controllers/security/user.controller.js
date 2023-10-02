@@ -330,7 +330,7 @@ const putUser = async (req = request, res = response) => {
 
     const {id_user = ""} = req.params;
 
-    const {user = "", username = "", status = "", id_role = "", email = "", imagen = "", id_social_network = "", id_modifier = ""} = req.body;
+    const {user = "", username = "", status = "", id_role = "", email = "", id_social_network = "", id_modifier = ""} = req.body;
 
     try {
         const searchUser = await Users.findByPk(id_user);
@@ -379,10 +379,9 @@ const putUser = async (req = request, res = response) => {
         &&(searchUser.NOMBRE_USUARIO == user || user === "")
         &&(searchUser.ESTADO_USUARIO == status || status === "")
         &&(searchUser.ID_ROL == id_role || id_role === "")
-        &&(searchUser.CORREO_ELECTRONICO == email || email === "")
-        &&(searchUser.IMAGEN == imagen || imagen === ""))){
+        &&(searchUser.CORREO_ELECTRONICO == email || email === ""))){
 
-            await generateEmailchanges(id_user, user, username, status, id_role, email, imagen,searchUser.USUARIO, searchUser.NOMBRE_USUARIO, searchUser.ESTADO_USUARIO, searchUser.ID_ROL, searchUser.CORREO_ELECTRONICO, searchUser.IMAGEN); 
+            await generateEmailchanges(id_user, user, username, status, id_role, email, imagen,searchUser.USUARIO, searchUser.NOMBRE_USUARIO, searchUser.ESTADO_USUARIO, searchUser.ID_ROL, searchUser.CORREO_ELECTRONICO); 
     }
 
     await searchUser.update({
@@ -391,7 +390,6 @@ const putUser = async (req = request, res = response) => {
         ESTADO_USUARIO: status !== "" ? status : Users.ESTADO_USUARIO,
         ID_ROL: id_role !== "" ? id_role : Users.ID_ROL,
         CORREO_ELECTRONICO: email !== "" ? email : Users.CORREO_ELECTRONICO,
-        IMAGEN: imagen !== "" ? imagen : Users.IMAGEN,
         MODIFICADO_POR: id_modifier
     }, {
         where: {
@@ -399,14 +397,14 @@ const putUser = async (req = request, res = response) => {
         }
     });
 
-    if(email !== "" &&(username === "" && status === "" && id_role === "" && user === "" && imagen === "")) {
+    if(email !== "" &&(username === "" && status === "" && id_role === "" && user === "")) {
         return res.status(200).json({
             ok: true,
             msg: 'The email has been updated.'
         })
     }
 
-    if(username !== "" &&(user === "" && status === "" && id_role === "" && email === "" && imagen === "")) {
+    if(username !== "" &&(user === "" && status === "" && id_role === "" && email === "")) {
         return res.status(200).json({
             ok: true,
             msg: 'The username has been updated.'
@@ -427,6 +425,8 @@ const putUser = async (req = request, res = response) => {
     }
     
 }
+
+
 
 module.exports = {
     registerStudent,
