@@ -1,25 +1,25 @@
 const { createTransporterYahoo, createTransporterGmail, createTransporterGmailChange, createTransporterYahooChange } = require("../helpers/nodemailer.helper");
 
-const generateEmails = async(email, user) =>{
+const generateEmails = async(email, user, msg) =>{
     let regdx = /(@yahoo.com)/;
     let regdx2 = /(@gmail.com)/;
     let regdx3 = /(@gs1hn.org)/;
     let regdx4 = /(@unah.hn)/;
         
         if(regdx.test(email)){
-            return await createTransporterYahoo(email, user);
+            return await createTransporterYahoo(email, user, msg);
         }
 
         if(regdx2.test(email) ){
-            return await createTransporterGmail(email, user);
+            return await createTransporterGmail(email, user, msg);
         }
 
         if(regdx3.test(email) ){
-            return await createTransporterYahoo(email, user);
+            return await createTransporterYahoo(email, user, msg);
         }
 
         if(regdx4.test(email) ){
-            return await createTransporterGmail(email, user);
+            return await createTransporterGmail(email, user, msg);
         }
     
 }

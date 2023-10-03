@@ -12,11 +12,11 @@ const CompanySize = require("../../models/student/company-size.model");
 const Location = require("../../models/student/location.model");
 const PYMEDetails = require("../../models/student/pyme-detail.model");
 const ViewUsers = require("../../models/security/views/view-user.model");
-const { generateEmailchanges } = require("../../helpers/generate-Emails.helper");
+const { generateEmailchanges, generateEmails } = require("../../helpers/generate-Emails.helper");
 
 const registerStudent = async (req = request, res = response) => {
     //Extract body parameters
-    const { name = "", username = "", email = "", password = "", confirm_password = ""} = req.body;
+    const { name = "", username = "", email = "", password = "", confirm_password = "" } = req.body;
     try {
         //Validate that both passwords match
         if (password !== confirm_password) {
@@ -67,7 +67,7 @@ const registerStudent = async (req = request, res = response) => {
         await passHistory.save();
 
         // Get created user ID
-        const user = await Users.findOne({ where: {CORREO_ELECTRONICO: email}});
+        const user = await Users.findOne({ where: { CORREO_ELECTRONICO: email } });
         //Update who modified and created it
         await Users.update({
             CREADO_POR: user.ID_USUARIO,
@@ -79,11 +79,11 @@ const registerStudent = async (req = request, res = response) => {
         })
 
         //Parameters
-        const nameCompany = await Parameter.findOne({where:{PARAMETRO: 'NOMBRE_EMPRESA'}});
-        const smtpUser = await Parameter.findOne({where:{PARAMETRO: 'SMTP_USER'}});
+        const nameCompany = await Parameter.findOne({ where: { PARAMETRO: 'NOMBRE_EMPRESA' } });
+        const smtpUser = await Parameter.findOne({ where: { PARAMETRO: 'SMTP_USER' } });
 
         const transporter = await createTransporter();
-        
+
         // send mail with defined transport object
         transporter.sendMail({
             from: `"${nameCompany.VALOR}" <${smtpUser.VALOR}>`, // sender address
@@ -108,7 +108,7 @@ const registerStudent = async (req = request, res = response) => {
 }
 
 const registerPYME = async (req = request, res = response) => {
-    const { 
+    const {
         name,
         email,
         password,
@@ -135,7 +135,7 @@ const registerPYME = async (req = request, res = response) => {
         //Build the student in the model
         DBUser = await Users.build({
             USUARIO: username,
-            NOMBRE_USUARIO: name, 
+            NOMBRE_USUARIO: name,
             CORREO_ELECTRONICO: email,
             ID_ROL: idRol.ID_ROL,
             ESTADO_USUARIO: 'PENDING'
@@ -166,11 +166,11 @@ const registerPYME = async (req = request, res = response) => {
         await Users.update({
             CREADO_POR: studentCreated.ID_USUARIO,
             MODIFICADO_POR: studentCreated.ID_USUARIO
-        }, {where: {ID_USUARIO: studentCreated.ID_USUARIO}})
+        }, { where: { ID_USUARIO: studentCreated.ID_USUARIO } })
 
 
-        const companySize = await CompanySize.findOne({where:{ID_TAMANO_EMPRESA: company_size}});
-        const companyLocation = await Location.findOne({where: {ID_UBICACION: location}})
+        const companySize = await CompanySize.findOne({ where: { ID_TAMANO_EMPRESA: company_size } });
+        const companyLocation = await Location.findOne({ where: { ID_UBICACION: location } })
 
         DBPYMEDetails = await PYMEDetails.build({
             ID_USUARIO: studentCreated.ID_USUARIO,
@@ -185,7 +185,7 @@ const registerPYME = async (req = request, res = response) => {
         //Parameters
         const nameCompany = await Parameter.findOne({ where: { PARAMETRO: 'NOMBRE_EMPRESA' } });
         const smtpUser = await Parameter.findOne({ where: { PARAMETRO: 'SMTP_USER' } });
-        const smtpUserYahoo = await Parameter.findOne({where: {PARAMETRO: 'SMTP_USER_YAHOO'}})
+        const smtpUserYahoo = await Parameter.findOne({ where: { PARAMETRO: 'SMTP_USER_YAHOO' } })
 
         const transporter = await createTransporter();
 
@@ -220,18 +220,18 @@ const registerPYME = async (req = request, res = response) => {
     }
 }
 
-const getUsers = async (req = request, res = response) =>{
+const getUsers = async (req = request, res = response) => {
 
-    let {lim, from = 0, search = ""} = req.query;
+    let { lim, from = 0, search = "" } = req.query;
 
     try {
 
-        if(!lim || lim === "") {
-            const { VALOR } = await Parameter.findOne({where: {PARAMETRO: 'LIMITE_REGISTROS'}});
+        if (!lim || lim === "") {
+            const { VALOR } = await Parameter.findOne({ where: { PARAMETRO: 'LIMITE_REGISTROS' } });
             lim = VALOR;
         }
 
-        if(from === "") {
+        if (from === "") {
             from = 0;
         }
 
@@ -243,12 +243,12 @@ const getUsers = async (req = request, res = response) =>{
                     USUARIO: {
                         [Op.like]: `%${search}%`
                     }
-                }, 
+                },
                 {
                     NOMBRE_USUARIO: {
                         [Op.like]: `%${search}%`
                     },
-                }, 
+                },
                 {
                     ROL: {
                         [Op.like]: `%${search}%`
@@ -262,30 +262,32 @@ const getUsers = async (req = request, res = response) =>{
             }
         });
 
-        const countUsers = await ViewUsers.count({ where: {
-            [Op.or]: [
-                {
-                    USUARIO: {
-                        [Op.like]: `%${search}%`
-                    }
-                }, 
-                {
-                    NOMBRE_USUARIO: {
-                        [Op.like]: `%${search}%`
+        const countUsers = await ViewUsers.count({
+            where: {
+                [Op.or]: [
+                    {
+                        USUARIO: {
+                            [Op.like]: `%${search}%`
+                        }
                     },
-                }, 
-                {
-                    ROL: {
-                        [Op.like]: `%${search}%`
-                    }
-                },
-                {
-                    CORREO_ELECTRONICO: {
-                        [Op.like]: `%${search}%`
-                    }
-                }]
-        }})
-    
+                    {
+                        NOMBRE_USUARIO: {
+                            [Op.like]: `%${search}%`
+                        },
+                    },
+                    {
+                        ROL: {
+                            [Op.like]: `%${search}%`
+                        }
+                    },
+                    {
+                        CORREO_ELECTRONICO: {
+                            [Op.like]: `%${search}%`
+                        }
+                    }]
+            }
+        })
+
         res.json({
             ok: true,
             lim,
@@ -293,7 +295,7 @@ const getUsers = async (req = request, res = response) =>{
             search,
             ViewUser: users
         })
-        
+
     } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -304,18 +306,18 @@ const getUsers = async (req = request, res = response) =>{
 
 }
 
-const getUser = async (req = request, res = response) =>{
+const getUser = async (req = request, res = response) => {
 
-    let {id_user} = req.params;
+    let { id_user } = req.params;
 
     try {
-        const user = await ViewUsers.findAll({ where: {ID_USUARIO: id_user}})
-    
+        const user = await ViewUsers.findAll({ where: { ID_USUARIO: id_user } })
+
         return res.json({
             ok: true,
             ViewUser: user
         })
-        
+
     } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -328,93 +330,93 @@ const getUser = async (req = request, res = response) =>{
 
 const putUser = async (req = request, res = response) => {
 
-    const {id_user = ""} = req.params;
+    const { id_user = "" } = req.params;
 
-    const {user = "", username = "", status = "", id_role = "", email = "", id_social_network = "", id_modifier = ""} = req.body;
+    const { user = "", username = "", status = "", id_role = "", email = "", id_social_network = "", id_modifier = "" } = req.body;
 
     try {
         const searchUser = await Users.findByPk(id_user);
-    if(!searchUser) {
-        return res.status(404).json({
-            ok: false,
-            msg: 'The student does not exist'
-        })
-    }
-
-    //Avoid modifying the ROOT user
-    if(searchUser.USUARIO === 'ROOT') {
-        if(user !== ""){
+        if (!searchUser) {
             return res.status(404).json({
                 ok: false,
-                msg: 'You cannot modify the ROOT name'
+                msg: 'The student does not exist'
             })
         }
-        if(username !== ""){
-            return res.status(404).json({
-                ok: false,
-                msg: 'You cannot modify the ROOT username'
-            })
-        }
-        if(status !== ""){
-            return res.status(404).json({
-                ok: false,
-                msg: 'You cannot modify the ROOT status'
-            })
-        }
-        if(id_role !== ""){
-            return res.status(404).json({
-                ok: false,
-                msg: 'You cannot modify the ROOT role'
-            })
-        }
-        if(email !== ""){
-            return res.status(404).json({
-                ok: false,
-                msg: 'You cannot modify the ROOT email'
-            })
-        }
-    }
 
-    if(! ((searchUser.USUARIO == username || username === "")
-        &&(searchUser.NOMBRE_USUARIO == user || user === "")
-        &&(searchUser.ESTADO_USUARIO == status || status === "")
-        &&(searchUser.ID_ROL == id_role || id_role === "")
-        &&(searchUser.CORREO_ELECTRONICO == email || email === ""))){
-
-            await generateEmailchanges(id_user, user, username, status, id_role, email, imagen,searchUser.USUARIO, searchUser.NOMBRE_USUARIO, searchUser.ESTADO_USUARIO, searchUser.ID_ROL, searchUser.CORREO_ELECTRONICO); 
-    }
-
-    await searchUser.update({
-        USUARIO: username !== "" ? username : Users.USUARIO,
-        NOMBRE_USUARIO: user !== "" ? user : Users.NOMBRE_USUARIO,
-        ESTADO_USUARIO: status !== "" ? status : Users.ESTADO_USUARIO,
-        ID_ROL: id_role !== "" ? id_role : Users.ID_ROL,
-        CORREO_ELECTRONICO: email !== "" ? email : Users.CORREO_ELECTRONICO,
-        MODIFICADO_POR: id_modifier
-    }, {
-        where: {
-            ID_USUARIO: id_user
+        //Avoid modifying the ROOT user
+        if (searchUser.USUARIO === 'ROOT') {
+            if (user !== "") {
+                return res.status(404).json({
+                    ok: false,
+                    msg: 'You cannot modify the ROOT name'
+                })
+            }
+            if (username !== "") {
+                return res.status(404).json({
+                    ok: false,
+                    msg: 'You cannot modify the ROOT username'
+                })
+            }
+            if (status !== "") {
+                return res.status(404).json({
+                    ok: false,
+                    msg: 'You cannot modify the ROOT status'
+                })
+            }
+            if (id_role !== "") {
+                return res.status(404).json({
+                    ok: false,
+                    msg: 'You cannot modify the ROOT role'
+                })
+            }
+            if (email !== "") {
+                return res.status(404).json({
+                    ok: false,
+                    msg: 'You cannot modify the ROOT email'
+                })
+            }
         }
-    });
 
-    if(email !== "" &&(username === "" && status === "" && id_role === "" && user === "")) {
-        return res.status(200).json({
+        if (!((searchUser.USUARIO == username || username === "")
+            && (searchUser.NOMBRE_USUARIO == user || user === "")
+            && (searchUser.ESTADO_USUARIO == status || status === "")
+            && (searchUser.ID_ROL == id_role || id_role === "")
+            && (searchUser.CORREO_ELECTRONICO == email || email === ""))) {
+
+            await generateEmailchanges(id_user, user, username, status, id_role, email, imagen, searchUser.USUARIO, searchUser.NOMBRE_USUARIO, searchUser.ESTADO_USUARIO, searchUser.ID_ROL, searchUser.CORREO_ELECTRONICO);
+        }
+
+        await searchUser.update({
+            USUARIO: username !== "" ? username : Users.USUARIO,
+            NOMBRE_USUARIO: user !== "" ? user : Users.NOMBRE_USUARIO,
+            ESTADO_USUARIO: status !== "" ? status : Users.ESTADO_USUARIO,
+            ID_ROL: id_role !== "" ? id_role : Users.ID_ROL,
+            CORREO_ELECTRONICO: email !== "" ? email : Users.CORREO_ELECTRONICO,
+            MODIFICADO_POR: id_modifier
+        }, {
+            where: {
+                ID_USUARIO: id_user
+            }
+        });
+
+        if (email !== "" && (username === "" && status === "" && id_role === "" && user === "")) {
+            return res.status(200).json({
+                ok: true,
+                msg: 'The email has been updated.'
+            })
+        }
+
+        if (username !== "" && (user === "" && status === "" && id_role === "" && email === "")) {
+            return res.status(200).json({
+                ok: true,
+                msg: 'The username has been updated.'
+            })
+        }
+
+        return res.json({
             ok: true,
-            msg: 'The email has been updated.'
-        })
-    }
-
-    if(username !== "" &&(user === "" && status === "" && id_role === "" && email === "")) {
-        return res.status(200).json({
-            ok: true,
-            msg: 'The username has been updated.'
-        })
-    }
-
-    return res.json({
-        ok: true,
-        msg: `${searchUser.USUARIO} user data has been updated`
-    });
+            msg: `${searchUser.USUARIO} user data has been updated`
+        });
 
     } catch (error) {
         console.log(error);
@@ -423,16 +425,60 @@ const putUser = async (req = request, res = response) => {
             msg: 'Talk to the administrator.'
         })
     }
-    
+
 }
 
+const putBlockUser = async (req = request, res = response) => {
+    const { id_user } = req.params;
+    const { id_modificator } = req.body;
 
+    try {
+        const blockUser = await Users.findByPk(id_user);
+
+        // Validar Existencia
+        if (!blockUser) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'There is no user with the id ' + id_user
+            })
+        }
+
+        if (blockUser.USUARIO === 'ROOT') {
+            return res.status(401).json({
+                ok: false,
+                msg: 'The root user cannot be locked'
+            })
+        }
+
+        await blockUser.update({
+            ESTADO_USUARIO: 'BLOCKED'
+        }, { where: { ID_USUARIO: id_user } });
+
+        message = "The account has been deactivated by the administrator.";
+
+        await generateEmails(blockUser.CORREO_ELECTRONICO, blockUser.USUARIO, message);
+
+        res.json({
+            ok: true,
+            msg: 'User blocked!'
+        })
+
+
+    } catch (error) {
+        console.log(error);
+        res.json({
+            ok: false,
+            msg: error
+        })
+    }
+}
 
 module.exports = {
     registerStudent,
     registerPYME,
     getUsers,
     getUser,
-    putUser
+    putUser,
+    putBlockUser,
 }
 

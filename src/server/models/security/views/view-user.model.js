@@ -19,8 +19,11 @@ const ViewUsers = connec.define('view_user',{
     CONTRASEÑA: {
         type: DataTypes.STRING
     },
-    ROL: {
+    ID_ROL: {
         type: DataTypes.INTEGER
+    },
+    ROL: {
+        type: DataTypes.STRING
     },
     ULTIMA_CONEXION: {
         type: DataTypes.DATE
@@ -28,9 +31,9 @@ const ViewUsers = connec.define('view_user',{
     CORREO_ELECTRONICO: {
         type: DataTypes.STRING
     },
-    IMAGEN: {
-        type: DataTypes.STRING
-    },
+    // IMAGEN: {
+    //     type: DataTypes.STRING
+    // },
     CREADO_POR: {
         type: DataTypes.INTEGER
     },

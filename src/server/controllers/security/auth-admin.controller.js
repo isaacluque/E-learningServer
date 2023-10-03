@@ -35,7 +35,9 @@ const login = async (req = request, res = response) => {
             if (!(DBUser.USUARIO === 'ROOT') && (DBUser.INTENTOS === parseInt(attemptManagement.VALOR, 10))) {
                 DBUser.ESTADO_USUARIO = 'BLOCKED'
 
-                await generateEmails(DBUser.CORREO_ELECTRONICO, DBUser.USUARIO);
+                message= "your account has been blocked for exceeding the number of attempts allowed. Please change your password.";
+
+                await generateEmails(DBUser.CORREO_ELECTRONICO, DBUser.USUARIO, message);
 
                 await DBUser.save();
 

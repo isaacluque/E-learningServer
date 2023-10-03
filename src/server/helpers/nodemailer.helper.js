@@ -5,7 +5,7 @@ const ViewUsers = require("../models/security/views/view-user.model");
 
 
 
-const createTransporterGmail = async(email, user) => {
+const createTransporterGmail = async(email, user, msg) => {
     
     //Parameters
 const smtpPort = await Parameter.findOne({where:{PARAMETRO: 'SMTP_PORT'}});
@@ -28,12 +28,12 @@ const nameCompany = await Parameter.findOne({where:{PARAMETRO: 'NOMBRE_EMPRESA'}
         from: `"${nameCompany.VALOR}" <${smtpUser.VALOR}>`, // sender address
         to: `${email}`, // list of receivers
         subject: "User locked!", // Subject line
-        text: `${user} your account has been blocked for exceeding the number of attempts allowed. Please change your password.`, // plain text body
-        html: `<b>${user} your account has been blocked for exceeding the number of attempts allowed. Please change your password.</b>`, // html body
+        text: `${user} ${msg}`, // plain text body
+        html: `<b>${user} ${msg}</b>`, // html body
     });
 }
 
-const createTransporterYahoo = async(email, user) => {
+const createTransporterYahoo = async(email, user, msg) => {
     //Parameters
 const smtpPort = await Parameter.findOne({where:{PARAMETRO: 'SMTP_PORT'}});
 const smtpUser = await Parameter.findOne({where:{PARAMETRO: 'SMTP_USER_YAHOO'}});
@@ -56,8 +56,8 @@ const nameCompany = await Parameter.findOne({where:{PARAMETRO: 'NOMBRE_EMPRESA'}
         from: `"${nameCompany.VALOR}" <${smtpUser.VALOR}>`, // sender address
         to: `${email}`, // list of receivers
         subject: "User locked!", // Subject line
-        text: `${user} your account has been blocked for exceeding the number of attempts allowed. Please change your password.`, // plain text body
-        html: `<b>${user} your account has been blocked for exceeding the number of attempts allowed. Please change your password.</b>`, // html body
+        text: `${user} ${msg}`, // plain text body
+        html: `<b>${user} ${msg}</b>`, // html body
     });
 }
 
