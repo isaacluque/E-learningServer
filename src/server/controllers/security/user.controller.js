@@ -332,7 +332,7 @@ const putUser = async (req = request, res = response) => {
 
     const { id_user = "" } = req.params;
 
-    const { user = "", username = "", status = "", id_role = "", email = "", id_social_network = "", id_modifier = "" } = req.body;
+    const { user = "", username = "", status = "", id_role = "", email = "", id_modifier = "" } = req.body;
 
     try {
         const searchUser = await Users.findByPk(id_user);
@@ -473,6 +473,51 @@ const putBlockUser = async (req = request, res = response) => {
     }
 }
 
+const putActivateUser = async (req = request, res = response) => {
+    const { id_user } = req.params;
+    const { id_modificator } = req.body;
+
+    try {
+        const activateUser = await Users.findByPk(id_user);
+
+        // Validar Existencia
+        if (!activateUser) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'There is no user with the id ' + id_user
+            })
+        }
+
+        if (activateUser.USUARIO === 'ROOT') {
+            return res.status(401).json({
+                ok: false,
+                msg: 'You cannot modify the ROOT name'
+            })
+        }
+
+        await activateUser.update({
+            ESTADO_USUARIO: 'ACTIVE'
+        }, { where: { ID_USUARIO: id_user } });
+
+        message = "The account has been successfully activated.";
+
+        await generateEmails(activateUser.CORREO_ELECTRONICO, activateUser.USUARIO, message);
+
+        res.json({
+            ok: true,
+            msg: 'User active!'
+        })
+
+
+    } catch (error) {
+        console.log(error);
+        res.json({
+            ok: false,
+            msg: error
+        })
+    }
+}
+
 module.exports = {
     registerStudent,
     registerPYME,
@@ -480,5 +525,6 @@ module.exports = {
     getUser,
     putUser,
     putBlockUser,
+    putActivateUser,
 }
 

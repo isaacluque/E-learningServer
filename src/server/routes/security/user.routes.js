@@ -7,7 +7,7 @@ const { validatePassword } = require('../../middlewares/validate-password');
 const { validateFields } = require('../../middlewares/validate-Fields');
 const { emailExisting, emailExistingUpdate } = require('../../middlewares/db-Validator');
 const { validateSpace, validateDoubleSpace } = require('../../middlewares/validate-spaces');
-const { registerStudent, registerPYME, getUsers, getUser, putUser, putBlockUser } = require('../../controllers/security/user.controller');
+const { registerStudent, registerPYME, getUsers, getUser, putUser, putBlockUser, putActivateUser } = require('../../controllers/security/user.controller');
 const { subirImagen, getImagenes } = require('../../controllers/security/imagens.controller');
 
 
@@ -90,5 +90,7 @@ router.post('/imagen/:id_user', subirImagen);
 router.get('/imagen/users', getImagenes)
 
 router.put('/blocked/:id_user', putBlockUser);
+
+router.put('/actived/:id_user', putActivateUser);
 
 module.exports = router;
