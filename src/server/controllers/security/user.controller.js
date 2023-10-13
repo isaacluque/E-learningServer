@@ -518,6 +518,8 @@ const putActivateUser = async (req = request, res = response) => {
     }
 }
 
+
+
 module.exports = {
     registerStudent,
     registerPYME,
