@@ -14,7 +14,7 @@ const ViewUsers = connec.define('view_user',{
     },
     ESTADO: {
         type: DataTypes.STRING,
-        default: true
+        // default: true
     },
     CONTRASEÑA: {
         type: DataTypes.STRING
@@ -35,16 +35,16 @@ const ViewUsers = connec.define('view_user',{
     //     type: DataTypes.STRING
     // },
     CREADO_POR: {
-        type: DataTypes.INTEGER
+        type: DataTypes.STRING
     },
     FECHA_CREACION: {
-        type: DataTypes.INTEGER
+        type: DataTypes.DATE
     },
     MODIFICADO_POR: {
-        type: DataTypes.INTEGER
+        type: DataTypes.DATE
     },
     FECHA_MODIFICACION: {
-        type: DataTypes.INTEGER
+        type: DataTypes.DATE
     },
 }, {
     tableName: 'view_user',

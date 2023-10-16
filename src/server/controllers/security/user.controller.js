@@ -222,7 +222,7 @@ const registerPYME = async (req = request, res = response) => {
 
 const getUsers = async (req = request, res = response) => {
 
-    let { lim, from = 0, search = "" } = req.query;
+    let { lim, from = 0, buscar = "" } = req.query;
 
     try {
 
@@ -241,22 +241,22 @@ const getUsers = async (req = request, res = response) => {
             where: {
                 [Op.or]: [{
                     USUARIO: {
-                        [Op.like]: `%${search}%`
+                        [Op.like]: `%${buscar}%`
                     }
                 },
                 {
                     NOMBRE_USUARIO: {
-                        [Op.like]: `%${search}%`
+                        [Op.like]: `%${buscar}%`
                     },
                 },
                 {
                     ROL: {
-                        [Op.like]: `%${search}%`
+                        [Op.like]: `%${buscar}%`
                     }
                 },
                 {
                     CORREO_ELECTRONICO: {
-                        [Op.like]: `%${search}%`
+                        [Op.like]: `%${buscar}%`
                     }
                 }]
             }
@@ -267,22 +267,22 @@ const getUsers = async (req = request, res = response) => {
                 [Op.or]: [
                     {
                         USUARIO: {
-                            [Op.like]: `%${search}%`
+                            [Op.like]: `%${buscar}%`
                         }
                     },
                     {
                         NOMBRE_USUARIO: {
-                            [Op.like]: `%${search}%`
+                            [Op.like]: `%${buscar}%`
                         },
                     },
                     {
                         ROL: {
-                            [Op.like]: `%${search}%`
+                            [Op.like]: `%${buscar}%`
                         }
                     },
                     {
                         CORREO_ELECTRONICO: {
-                            [Op.like]: `%${search}%`
+                            [Op.like]: `%${buscar}%`
                         }
                     }]
             }
@@ -292,7 +292,7 @@ const getUsers = async (req = request, res = response) => {
             ok: true,
             lim,
             countUsers,
-            search,
+            buscar,
             ViewUser: users
         })
 
