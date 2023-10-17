@@ -308,14 +308,14 @@ const getUsers = async (req = request, res = response) => {
 
 const getUser = async (req = request, res = response) => {
 
-    let { id_user } = req.params;
+    let { id_user = 0 } = req.params;
 
     try {
-        const user = await ViewUsers.findAll({ where: { ID_USUARIO: id_user } })
+        const user = await ViewUsers.findOne({ where: { ID_USUARIO: id_user } })
 
         return res.json({
-            ok: true,
-            ViewUser: user
+            // ok: true,
+            user
         })
 
     } catch (error) {
