@@ -308,12 +308,19 @@ const getUsers = async (req = request, res = response) => {
 
 const getUser = async (req = request, res = response) => {
 
-    let { id_user = 0 } = req.params;
+    let { id_user } = req.params;
 
     try {
-        const user = await ViewUsers.findOne({ where: { ID_USUARIO: id_user } })
+        const user = await ViewUsers.findByPk(id_user)
 
-        return res.json({
+        if(!user){
+            return res.json(404).json({
+                ok: false,
+                msg: 'No existe un usuario con el id ' + user
+            })
+        }
+
+        res.json({
             // ok: true,
             user
         })
@@ -322,7 +329,7 @@ const getUser = async (req = request, res = response) => {
         console.log(error);
         return res.status(500).json({
             ok: false,
-            msg: error
+            msg: error.message
         })
     }
 

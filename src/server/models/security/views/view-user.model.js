@@ -14,10 +14,10 @@ const ViewUsers = connec.define('view_user',{
     },
     ESTADO: {
         type: DataTypes.STRING,
-        // default: true
+        default: true
     },
-    CONTRASEÑA: {
-        type: DataTypes.STRING
+    CONTRASENA: {
+        type: DataTypes.TEXT
     },
     ID_ROL: {
         type: DataTypes.INTEGER
@@ -31,9 +31,6 @@ const ViewUsers = connec.define('view_user',{
     CORREO_ELECTRONICO: {
         type: DataTypes.STRING
     },
-    // IMAGEN: {
-    //     type: DataTypes.STRING
-    // },
     CREADO_POR: {
         type: DataTypes.STRING
     },
@@ -41,7 +38,7 @@ const ViewUsers = connec.define('view_user',{
         type: DataTypes.DATE
     },
     MODIFICADO_POR: {
-        type: DataTypes.DATE
+        type: DataTypes.STRING
     },
     FECHA_MODIFICACION: {
         type: DataTypes.DATE
