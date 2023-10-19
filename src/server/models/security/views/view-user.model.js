@@ -43,6 +43,12 @@ const ViewUsers = connec.define('view_user',{
     FECHA_MODIFICACION: {
         type: DataTypes.DATE
     },
+    IMAGEN: {
+        type: DataTypes.BLOB
+    },
+    MIMETYPE: {
+        type: DataTypes.TEXT
+    },
 }, {
     tableName: 'view_user',
     timestamps: false,

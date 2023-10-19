@@ -43,6 +43,12 @@ const Users = connec.define('tbl_ms_usuario',{
     MODIFICADO_POR: {
         type: DataTypes.INTEGER
     },
+    IMAGEN: {
+        type: DataTypes.BLOB
+    },
+    MIMETYPE: {
+        type: DataTypes.TEXT
+    },
 }, {
     tableName: 'tbl_ms_usuario',
     timestamps: true,

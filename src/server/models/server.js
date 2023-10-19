@@ -1,12 +1,13 @@
 
 const express = require('express');
 const cors = require('cors');
-const fileUpload = require('express-fileupload');
+// const fileUpload = require('express-fileupload');
 
 const routerAuthAdmin = require('../routes/security/auth-admin.routes');
 const routerUser = require('../routes/security/user.routes');
 const routerLocation = require('../routes/student/location/location.routes');
 const routerCompanySize = require('../routes/student/company-size/company-size.routes');
+const routerUpload = require('../routes/security/upload.routes');
 
 class Server {
     constructor() {
@@ -18,6 +19,7 @@ class Server {
             //Security
             auth:       '/auth',
             user:       '/user',
+            upload:     '/upload',
 
             //Register Student
             register:   '/register',
@@ -44,10 +46,10 @@ class Server {
         //Read end Parse of body
         this.app.use(express.json());
         // Carga de archivos
-        this.app.use(fileUpload({
-            useTempFiles : true,
-            tempFileDir : '/tmp/'
-        }));
+        // this.app.use(fileUpload({
+        //     useTempFiles : true,
+        //     tempFileDir : '/tmp/'
+        // }));
     }
 
     routes() {
@@ -55,6 +57,7 @@ class Server {
         this.app.use(this.apiRoutes.auth, routerAuthAdmin);
         this.app.use(this.apiRoutes.register, routerUser);
         this.app.use(this.apiRoutes.user, routerUser);
+        this.app.use(this.apiRoutes.upload, routerUpload);
 
         //Location
         this.app.use(this.apiRoutes.location, routerLocation);
