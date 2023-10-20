@@ -2,15 +2,28 @@ const { request, response } = require('express');
 const Users = require('../../models/security/users.model');
 const ViewUsers = require('../../models/security/views/view-user.model');
 const sharp = require('sharp');
+const { uploadImage } = require('../../cloudinary/config');
+
 
 const subirimagen = async (req, res) => {
     const { id_user } = req.params;
-    const image = req.file;
+    const {image} = req.files;
 
-    console.log(image)
+    // console.log(image)
 
     try {
-        await Users.update({ IMAGEN: image.buffer, MIMETYPE: image.mimetype }, { where: { ID_USUARIO: id_user } });
+
+        const result = await uploadImage(image.tempFilePath);
+            // console.log(result)
+
+        await Users.update({ 
+            IMAGE: result.secure_url, 
+            ID_PUBLIC: result.public_id 
+        }, { 
+            where: { 
+                ID_USUARIO: id_user 
+            } 
+        });
 
         res.json({
             msg: 'Imagen subida'
@@ -36,27 +49,9 @@ const getImageUser = async (req, res) => {
             res.status(404).json({ message: 'No se encontró una imagen para el ID de usuario proporcionado' });
         }
 
-        // Recupera el campo BLOB de la imagen del usuario
-        const imageData = user.IMAGEN;
-
-        // Verifica que haya datos de imagen
-        if (!imageData) {
-            return res.status(404).send('Imagen no encontrada');
-        }
-
-        const processedImage = await sharp(imageData)
-            .resize(200, 200) // Redimensiona la imagen a 200x200 píxeles
-            .toBuffer();
-
-        // Configura el tipo de contenido de la respuesta
-        res.contentType(`${user.MIMETYPE}`); // Cambia a 'image/png' si es un PNG
-
-        // Envía los datos de la imagen al navegador
-
-        console.log(imageData);
-        res.send(imageData);
-        
-
+        res.json({
+            user
+        })
 
     } catch (error) {
         res.status(400).json({
@@ -69,16 +64,9 @@ const allImages = async (req, res) => {
     try {
 
         const users = await ViewUsers.findAll();
-        const imageUrls = [];
-        
-        users.forEach((user) => {
-            if (user.IMAGEN) {
-              const imageUrl = `data:${user.MIMETYPE};base64,${user.IMAGEN.toString('base64')}`;
-              imageUrls.push(imageUrl);
-            }
-          });
+
       
-          res.json(imageUrls);
+          res.json(users);
     } catch (error) {
         
     }
