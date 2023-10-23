@@ -7,7 +7,7 @@ const { validatePassword } = require('../../middlewares/validate-password');
 const { validateFields } = require('../../middlewares/validate-Fields');
 const { emailExisting, emailExistingUpdate } = require('../../middlewares/db-Validator');
 const { validateSpace, validateDoubleSpace } = require('../../middlewares/validate-spaces');
-const { registerStudent, registerPYME, getUsers, getUser, putUser, putBlockUser, putActivateUser } = require('../../controllers/security/user.controller');
+const { registerStudent, registerPYME, getUsers, getUser, putUser, putBlockUser, putActivateUser, generatePassword, postUserMaintenance } = require('../../controllers/security/user.controller');
 
 
 
@@ -94,5 +94,31 @@ router.put('/update-user/:id_user', [
 router.put('/blocked/:id_user', putBlockUser);
 
 router.put('/actived/:id_user', putActivateUser);
+
+router.get('/generate-password/password', generatePassword);
+
+router.post('/maintenance/create-user', [
+    //user validations
+    check('name', 'Name is required').not().isEmpty(),
+    check('name', 'No more than 2 blank spaces are allowed in your name.').custom(validateDoubleSpace),
+    check('name', 'User can only contain letters').isAlpha('es-ES', {ignore:' '}),
+    // username validations
+    check('username', 'Username is required').not().isEmpty(),
+    check('username', 'The maximum number of characters is 15').isLength({max: 15}),
+    check('username', 'The minimum number of characters is 8').isLength({min: 4}),
+    check('username', 'Whitespace is not allowed in user').custom(validateSpace),
+    validateUserSpaces,
+    // email validations
+    check('email', 'El correo es obligatorio').not().isEmpty(),
+    check('email', 'El correo no es válido').isEmail(),
+    check('email').custom(emailExisting),
+    check('password', 'Password is required').not().isEmpty(),
+    check('password', 'The maximum number of characters is 12').isLength({max: 12}),
+    check('password', 'Blanks are not allowed in the password').custom(validateSpace),
+    existUser,
+    validatePasswordLength,
+    validatePassword,
+    validateFields
+], postUserMaintenance)
 
 module.exports = router;

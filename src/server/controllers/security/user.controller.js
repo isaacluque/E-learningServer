@@ -13,6 +13,7 @@ const Location = require("../../models/student/location.model");
 const PYMEDetails = require("../../models/student/pyme-detail.model");
 const ViewUsers = require("../../models/security/views/view-user.model");
 const { generateEmailchanges, generateEmails } = require("../../helpers/generate-Emails.helper");
+const generator = require('generate-password');
 
 const registerStudent = async (req = request, res = response) => {
     //Extract body parameters
@@ -89,7 +90,7 @@ const registerStudent = async (req = request, res = response) => {
             from: `"${nameCompany.VALOR}" <${smtpUser.VALOR}>`, // sender address
             to: `${DBUser.CORREO_ELECTRONICO}`, // list of receivers
             subject: "User created successfully! ✔", // Subject line
-            text: "Hello world?", // plain text body
+            text: "Hello", // plain text body
             html: `<b>Your user ${DBUser.USUARIO} has been created successfully!</b>`//, // html body
         });
 
@@ -222,7 +223,7 @@ const registerPYME = async (req = request, res = response) => {
 
 const getUsers = async (req = request, res = response) => {
 
-    let { lim, from = 0, buscar = "" } = req.query;
+    let { lim, from = 0, search = "" } = req.query;
 
     try {
 
@@ -241,22 +242,22 @@ const getUsers = async (req = request, res = response) => {
             where: {
                 [Op.or]: [{
                     USUARIO: {
-                        [Op.like]: `%${buscar}%`
+                        [Op.like]: `%${search}%`
                     }
                 },
                 {
                     NOMBRE_USUARIO: {
-                        [Op.like]: `%${buscar}%`
+                        [Op.like]: `%${search}%`
                     },
                 },
                 {
                     ROL: {
-                        [Op.like]: `%${buscar}%`
+                        [Op.like]: `%${search}%`
                     }
                 },
                 {
                     CORREO_ELECTRONICO: {
-                        [Op.like]: `%${buscar}%`
+                        [Op.like]: `%${search}%`
                     }
                 }]
             }
@@ -267,22 +268,22 @@ const getUsers = async (req = request, res = response) => {
                 [Op.or]: [
                     {
                         USUARIO: {
-                            [Op.like]: `%${buscar}%`
+                            [Op.like]: `%${search}%`
                         }
                     },
                     {
                         NOMBRE_USUARIO: {
-                            [Op.like]: `%${buscar}%`
+                            [Op.like]: `%${search}%`
                         },
                     },
                     {
                         ROL: {
-                            [Op.like]: `%${buscar}%`
+                            [Op.like]: `%${search}%`
                         }
                     },
                     {
                         CORREO_ELECTRONICO: {
-                            [Op.like]: `%${buscar}%`
+                            [Op.like]: `%${search}%`
                         }
                     }]
             }
@@ -292,7 +293,7 @@ const getUsers = async (req = request, res = response) => {
             ok: true,
             lim,
             countUsers,
-            buscar,
+            search,
             ViewUser: users
         })
 
@@ -525,6 +526,102 @@ const putActivateUser = async (req = request, res = response) => {
     }
 }
 
+const postUserMaintenance = async (req = request, res = response) => {
+    const { name = "", username = "", password = "", id_rol = "", email = "", created_by = "" } = req.body;
+    try {
+
+         //Build the user in the model
+         const DUser = await Users.build({
+            USUARIO: username,
+            NOMBRE_USUARIO: name,
+            CORREO_ELECTRONICO: email,
+            ID_ROL: id_rol,
+            ESTADO_USUARIO: 'ACTIVE',
+            AUTOREGISTRADO: false
+        })
+
+        const salt = bcrypt.genSaltSync(10);
+        DUser.CONTRASENA = bcrypt.hashSync(password, salt);
+
+        await DUser.save()
+
+        const userCreated = await Users.findOne({ where: {USUARIO: username}});
+
+        passHistory = await PasswordHistory.build({
+            ID_USUARIO: userCreated.ID_USUARIO,
+            CONTRASENA: DUser.CONTRASENA
+        })
+
+        await passHistory.save();
+
+        // Get created user ID
+        const create = await Users.findByPk(created_by);
+        //Update who modified and created it
+        await Users.update({
+            CREADO_POR: create.ID_USUARIO,
+            MODIFICADO_POR: create.ID_USUARIO
+        }, {
+            where: {
+                USUARIO: username
+            }
+        })
+
+        //Parameters
+        const nameCompany = await Parameter.findOne({ where: { PARAMETRO: 'NOMBRE_EMPRESA' } });
+        const smtpUser = await Parameter.findOne({ where: { PARAMETRO: 'SMTP_USER' } });
+
+        const transporter = await createTransporter();
+
+        // send mail with defined transport object
+        transporter.sendMail({
+            from: `"${nameCompany.VALOR}" <${smtpUser.VALOR}>`, // sender address
+            to: `${DUser.CORREO_ELECTRONICO}`, // list of receivers
+            subject: "User created successfully! ✔", // Subject line
+            text: "Hello", // plain text body
+            html: `<b>Your user ${DUser.USUARIO} has been created successfully!</b>`//, // html body
+        });
+
+        res.status(201).json({
+            ok: true,
+            msg: 'User created successfully!',
+            User: DUser
+        });
+
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({
+            msg: error
+        })
+    }
+}
+
+const generatePassword = async (req = request, res = response) => {
+
+    try {
+        const maxLenght = await Parameter.findOne({ where: {PARAMETRO: 'MAX_CONTRASENA'}})
+
+        const password = generator.generate({
+            length: maxLenght.VALOR,
+            numbers: true,
+            symbols: true,
+            lowercase: true,
+            uppercase: true,
+            exclude: '{}[]!/?-_~*\|',
+            strict: true
+        })
+
+        res.json({
+            password
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({
+            msg: error
+        })
+    }
+
+}
+
 
 
 module.exports = {
@@ -535,5 +632,7 @@ module.exports = {
     putUser,
     putBlockUser,
     putActivateUser,
+    generatePassword,
+    postUserMaintenance,
 }
 
