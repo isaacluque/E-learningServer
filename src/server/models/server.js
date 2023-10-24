@@ -8,6 +8,7 @@ const routerUser = require('../routes/security/user.routes');
 const routerLocation = require('../routes/student/location/location.routes');
 const routerCompanySize = require('../routes/student/company-size/company-size.routes');
 const routerUpload = require('../routes/security/upload.routes');
+const routerRole = require('../routes/security/role.routes');
 
 class Server {
     constructor() {
@@ -20,6 +21,7 @@ class Server {
             auth:       '/auth',
             user:       '/user',
             upload:     '/upload',
+            role:       '/role',
 
             //Register Student
             register:   '/register',
@@ -58,6 +60,7 @@ class Server {
         this.app.use(this.apiRoutes.register, routerUser);
         this.app.use(this.apiRoutes.user, routerUser);
         this.app.use(this.apiRoutes.upload, routerUpload);
+        this.app.use(this.apiRoutes.role, routerRole);
 
         //Location
         this.app.use(this.apiRoutes.location, routerLocation);
