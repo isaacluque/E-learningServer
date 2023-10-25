@@ -7,7 +7,7 @@ const { validatePassword } = require('../../middlewares/validate-password');
 const { validateFields } = require('../../middlewares/validate-Fields');
 const { emailExisting, emailExistingUpdate } = require('../../middlewares/db-Validator');
 const { validateSpace, validateDoubleSpace } = require('../../middlewares/validate-spaces');
-const { registerStudent, registerPYME, getUsers, getUser, putUser, putBlockUser, putActivateUser, generatePassword, postUserMaintenance } = require('../../controllers/security/user.controller');
+const { registerStudent, registerPYME, getUsers, getUser, putUser, putBlockUser, putActivateUser, generatePassword, postUserMaintenance, postPYMEMaintenance } = require('../../controllers/security/user.controller');
 
 
 
@@ -120,5 +120,37 @@ router.post('/maintenance/create-user', [
     validatePassword,
     validateFields
 ], postUserMaintenance)
+
+router.post('/maintenance/create-pyme', [
+    //user validations
+    check('name', 'Name is required').not().isEmpty(),
+    check('name', 'No more than 2 blank spaces are allowed in your name.').custom(validateDoubleSpace),
+    check('name', 'User can only contain letters').isAlpha('es-ES', {ignore:' '}),
+    // username validations
+    check('username', 'Username is required').not().isEmpty(),
+    check('username', 'The maximum number of characters is 15').isLength({max: 15}),
+    check('username', 'The minimum number of characters is 8').isLength({min: 8}),
+    check('username', 'Whitespace is not allowed in user').custom(validateSpace),
+    validateUserSpaces,
+    // email validations
+    check('email', 'El correo es obligatorio').not().isEmpty(),
+    check('email', 'El correo no es válido').isEmail(),
+    check('email').custom(emailExisting),
+    // password validations
+    check('password', 'Password is required').not().isEmpty(),
+    check('password', 'The maximum number of characters is 12').isLength({max: 12}),
+    check('password', 'Blanks are not allowed in the password').custom(validateSpace),
+    //status validations
+    check('status', 'Status is required').not().isEmpty(),
+    // company validations
+    check('phone_number', 'Phone number is required').not().isEmpty(),
+    check('company_name', 'Company name is required').not().isEmpty(),
+    check('company_size', 'Company size is required').not().isEmpty(),
+    check('location', 'Location is required').not().isEmpty(),
+    existUser,
+    validatePasswordLength,
+    validatePassword,
+    validateFields
+], postPYMEMaintenance);
 
 module.exports = router;

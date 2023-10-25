@@ -622,7 +622,114 @@ const generatePassword = async (req = request, res = response) => {
 
 }
 
+const postPYMEMaintenance = async (req = request, res = response) => {
+    const {
+        name = "",
+        email = "",
+        password = "",
+        username = "",
+        phone_number = "",
+        company_name = "",
+        company_size = "",
+        location = "",
+        status = "",
+        created_by = "" } = req.body
 
+    try {
+
+        //Get the default role
+        const idRol = await Roles.findOne({ where: { ROL: 'PYME' } });
+
+        //Build the student in the model
+        DBUser = await Users.build({
+            USUARIO: username,
+            NOMBRE_USUARIO: name,
+            CORREO_ELECTRONICO: email,
+            ID_ROL: idRol.ID_ROL,
+            ESTADO_USUARIO: status
+        })
+
+        //encrypt the password
+        const salt = bcrypt.genSaltSync(10);
+        DBUser.CONTRASENA = bcrypt.hashSync(password, salt);
+
+        //Save the user in the DB.
+        await DBUser.save();
+
+        //Find the user created to save the password in the history
+        const studentCreated = await Users.findOne({ where: { CORREO_ELECTRONICO: email } });
+
+        //Save password in password history
+        passHistory = await PasswordHistory.build({
+            ID_USUARIO: studentCreated.ID_USUARIO,
+            CONTRASENA: DBUser.CONTRASENA
+        })
+
+        //Save the password in the DB.
+        await passHistory.save();
+
+        // // Get created student ID
+        const create = await Users.findByPk(created_by);
+        //Update who modified and created it
+        await Users.update({
+            CREADO_POR: create.ID_USUARIO,
+            MODIFICADO_POR: create.ID_USUARIO
+        }, { 
+            where: { 
+                USUARIO: username
+            } 
+        });
+
+        const companySize = await CompanySize.findOne({ where: { ID_TAMANO_EMPRESA: company_size } });
+        const companyLocation = await Location.findOne({ where: { ID_UBICACION: location } })
+
+        DBPYMEDetails = await PYMEDetails.build({
+            ID_USUARIO: studentCreated.ID_USUARIO,
+            TELEFONO: phone_number,
+            NOMBRE_EMPRESA: company_name,
+            ID_TAMANO_EMPRESA: companySize.ID_TAMANO_EMPRESA,
+            ID_UBICACION: companyLocation.ID_UBICACION
+        })
+
+        await DBPYMEDetails.save();
+
+        //Parameters
+        const nameCompany = await Parameter.findOne({ where: { PARAMETRO: 'NOMBRE_EMPRESA' } });
+        const smtpUser = await Parameter.findOne({ where: { PARAMETRO: 'SMTP_USER' } });
+        const smtpUserYahoo = await Parameter.findOne({ where: { PARAMETRO: 'SMTP_USER_YAHOO' } })
+
+        const transporter = await createTransporter();
+
+        // send mail with defined transport object
+        transporter.sendMail({
+            from: `"${nameCompany.VALOR}" <${smtpUser.VALOR}>`, // sender address
+            to: `${DBUser.CORREO_ELECTRONICO}`, // list of receivers
+            subject: "Pending Confirmation", // Subject line
+            text: "Pending Confirmation", // plain text body
+            html: `<b>${company_name} we will be in touch very soon.</b>`//, // html body
+        });
+
+        transporter.sendMail({
+            from: `"${nameCompany.VALOR}" <${smtpUser.VALOR}>`, // sender address
+            to: `${smtpUser.VALOR}`, // list of receivers
+            subject: "PYME student confirmation", // Subject line
+            text: "PYME student confirmation", // plain text body
+            html: `<b>The ${company_name} company has been registered, please verify your data.</b>`//, // html body
+        });
+
+        return res.status(200).json({
+            User: DBUser,
+            DBPYMEDetails,
+            ok: true,
+            msg: 'Student PYME created successfully!',
+        })
+    } catch (error) {
+        console.log(error);
+        return res.json({
+            msg: 'Error'
+        });
+    }
+}
 
 module.exports = {
     registerStudent,
@@ -634,5 +741,6 @@ module.exports = {
     putActivateUser,
     generatePassword,
     postUserMaintenance,
+    postPYMEMaintenance,
 }
 
